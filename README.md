@@ -1,4 +1,4 @@
-# Nonlinear Cart-Pole Benchmark
+# Nonlinear Cart-Pole
 
 *Full nonlinear cart-pole dynamics, shared swing-up, and three compared upright stabilizers: `LQR`, `PFL`, and `SMC`.*
 
@@ -253,5 +253,5 @@ The main aggregate outputs are:
 ## Notes for Publishing
 
 - The README uses tracked showcase assets from `docs/media/`, not from volatile artifact roots.
-- Generated artifact directories such as `artifacts_v5/` and `artifacts_v6/` should stay ignored.
+- Generated artifact directories such as `artifacts_v*/` should stay ignored.
 - Before pushing, confirm that only curated media and source files are staged.

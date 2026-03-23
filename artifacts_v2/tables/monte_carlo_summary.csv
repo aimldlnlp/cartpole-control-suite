@@ -1,4 +1,0 @@
-controller_name,samples,success_rate,success_count,median_settling_time,median_control_effort,median_steady_state_error_deg,invalid_rate
-LQR,1000,0.635,635,2.98,28.801503933531237,0.18981279785889396,0.0
-Feedback Linearization (PFL),1000,0.0,0,,29.45348005359715,18.135468275736216,0.0
-Sliding Mode Control (SMC),1000,0.0,0,0.24,23.743217695904008,0.18457325123494492,0.0
