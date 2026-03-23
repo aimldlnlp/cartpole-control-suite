@@ -1,0 +1,10 @@
+{
+  "k_theta": 18.0,
+  "k_theta_dot": 8.5,
+  "k_x": 1.6,
+  "k_x_dot": 2.8,
+  "desired_accel_limit": 6.0,
+  "effective_mass_epsilon": 0.08,
+  "lqr_assist_weight": 0.55,
+  "force_limit": 15.0
+}

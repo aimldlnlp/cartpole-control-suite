@@ -1,0 +1,123 @@
+{
+  "artifact_version": "v2",
+  "controller_config": {
+    "force_limit": 15.0,
+    "gains": {
+      "desired_accel_limit": 6.0,
+      "effective_mass_epsilon": 0.08,
+      "k_theta": 18.0,
+      "k_theta_dot": 8.5,
+      "k_x": 1.6,
+      "k_x_dot": 2.8,
+      "lqr_assist_weight": 0.55
+    },
+    "name": "pfl"
+  },
+  "controller_name": "Feedback Linearization (PFL)",
+  "csv_path": "csv/stress__large_angle_recovery__feedback_linearization_pfl__seed28.csv",
+  "diagnosis": {
+    "balance_fraction": 0.9470529470529471,
+    "failure_reason": null,
+    "first_balance_time": 0.53,
+    "max_abs_theta_dot": 1.358981736278623,
+    "max_abs_x": 1.3037599118414256,
+    "min_abs_theta_deg": 0.00023840975419244287,
+    "time_of_min_abs_theta": 7.7299999999999995
+  },
+  "git_commit": null,
+  "invalid": false,
+  "metrics": {
+    "control_effort": 28.687652186775804,
+    "final_abs_theta_deg": 0.022954582356432395,
+    "max_abs_force": 15.0,
+    "overshoot_deg": 14.932580950600327,
+    "settling_time": 5.04,
+    "steady_state_error_deg": 0.04984426749769193,
+    "success": true,
+    "switch_time": 0.38
+  },
+  "plant_params": {
+    "M": 1.0,
+    "cart_friction": 0.02,
+    "force_limit": 15.0,
+    "g": 9.81,
+    "l": 0.5,
+    "m": 0.2,
+    "pendulum_inertia": 0.0,
+    "pivot_damping": 0.01,
+    "track_limit": 2.4
+  },
+  "render_paths": {},
+  "scenario_config": {
+    "disturbance": {
+      "duration": 0.0,
+      "kind": "none",
+      "magnitude": 0.0,
+      "start_time": 0.0
+    },
+    "dt": 0.01,
+    "horizon": 10.0,
+    "initial_state": [
+      0.0,
+      0.0,
+      0.4363323129985824,
+      0.0
+    ],
+    "name": "large_angle_recovery",
+    "noise": {
+      "state_std": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "plant_overrides": {},
+    "seed": 28,
+    "suite_name": "stress"
+  },
+  "scenario_name": "large_angle_recovery",
+  "seed": 28,
+  "suite_name": "stress",
+  "swingup_config": {
+    "force_limit": 15.0,
+    "gains": {
+      "capture_balance_blend": 0.72,
+      "capture_blend_angle_deg": 35.0,
+      "capture_lqr_full_angle_deg": 20.0,
+      "capture_rail_guard_scale": 1.35,
+      "capture_rate_limit": 2.8,
+      "capture_target_limit": 0.45,
+      "capture_target_theta_dot_gain": 0.18,
+      "capture_target_theta_gain": 0.6,
+      "capture_theta_dot_gain": 18.0,
+      "capture_theta_gain": 60.0,
+      "capture_x_dot_gain": 4.5,
+      "capture_x_gain": 2.6,
+      "cart_position_gain": 0.45,
+      "cart_velocity_gain": 0.95,
+      "energy_gain": 14.0,
+      "energy_rail_guard_scale": 0.35,
+      "energy_soft_limit_ratio": 0.85,
+      "energy_velocity_gain": 5.0,
+      "rail_guard_gain": 7.5,
+      "rail_guard_velocity_gain": 3.2,
+      "recenter_position_gain": 6.0,
+      "recenter_position_threshold_ratio": 0.68,
+      "recenter_velocity_gain": 4.5
+    },
+    "name": "swingup"
+  },
+  "switch_config": {
+    "capture_energy_tolerance_ratio": 0.35,
+    "capture_entry_angle_deg": 55.0,
+    "capture_min_angle_deg": 15.0,
+    "capture_release_angle_deg": 65.0,
+    "enter_angle_deg": 12.0,
+    "enter_hold_time": 0.15,
+    "enter_rate": 1.0,
+    "exit_angle_deg": 20.0,
+    "exit_hold_time": 0.15
+  },
+  "track_violation": false
+}

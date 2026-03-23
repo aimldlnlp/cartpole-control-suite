@@ -1,0 +1,39 @@
+{
+  "suite_name": "nominal",
+  "scenarios": [
+    {
+      "name": "local_small_angle",
+      "horizon": 8.0,
+      "dt": 0.01,
+      "initial_state": [0.05, 0.0, 0.13962634015954636, 0.0],
+      "seed": 7,
+      "repetitions": 5,
+      "noise": {
+        "state_std": [0.0, 0.0, 0.0, 0.0]
+      },
+      "disturbance": {
+        "kind": "none",
+        "magnitude": 0.0,
+        "start_time": 0.0,
+        "duration": 0.0
+      }
+    },
+    {
+      "name": "full_task_hanging",
+      "horizon": 15.0,
+      "dt": 0.01,
+      "initial_state": [0.0, 0.0, 3.0543261909900763, 0.0],
+      "seed": 11,
+      "repetitions": 5,
+      "noise": {
+        "state_std": [0.0, 0.0, 0.0, 0.0]
+      },
+      "disturbance": {
+        "kind": "none",
+        "magnitude": 0.0,
+        "start_time": 0.0,
+        "duration": 0.0
+      }
+    }
+  ]
+}

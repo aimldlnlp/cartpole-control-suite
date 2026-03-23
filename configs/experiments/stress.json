@@ -1,0 +1,99 @@
+{
+  "suite_name": "stress",
+  "scenarios": [
+    {
+      "name": "measurement_noise",
+      "horizon": 10.0,
+      "dt": 0.01,
+      "initial_state": [0.05, 0.0, 0.13962634015954636, 0.0],
+      "seed": 21,
+      "repetitions": 5,
+      "noise": {
+        "state_std": [0.005, 0.02, 0.008726646259971648, 0.05]
+      },
+      "disturbance": {
+        "kind": "none",
+        "magnitude": 0.0,
+        "start_time": 0.0,
+        "duration": 0.0
+      }
+    },
+    {
+      "name": "impulse_disturbance",
+      "horizon": 10.0,
+      "dt": 0.01,
+      "initial_state": [0.05, 0.0, 0.13962634015954636, 0.0],
+      "seed": 22,
+      "repetitions": 5,
+      "noise": {
+        "state_std": [0.0, 0.0, 0.0, 0.0]
+      },
+      "disturbance": {
+        "kind": "pulse",
+        "magnitude": 2.0,
+        "start_time": 3.0,
+        "duration": 0.2
+      }
+    },
+    {
+      "name": "friction_and_damping",
+      "horizon": 10.0,
+      "dt": 0.01,
+      "initial_state": [0.05, 0.0, 0.13962634015954636, 0.0],
+      "seed": 23,
+      "repetitions": 5,
+      "noise": {
+        "state_std": [0.0, 0.0, 0.0, 0.0]
+      },
+      "disturbance": {
+        "kind": "none",
+        "magnitude": 0.0,
+        "start_time": 0.0,
+        "duration": 0.0
+      },
+      "plant_overrides": {
+        "cart_friction": 0.1,
+        "pivot_damping": 0.03
+      }
+    },
+    {
+      "name": "large_angle_recovery",
+      "horizon": 10.0,
+      "dt": 0.01,
+      "initial_state": [0.0, 0.0, 0.4363323129985824, 0.0],
+      "seed": 24,
+      "repetitions": 5,
+      "noise": {
+        "state_std": [0.0, 0.0, 0.0, 0.0]
+      },
+      "disturbance": {
+        "kind": "none",
+        "magnitude": 0.0,
+        "start_time": 0.0,
+        "duration": 0.0
+      }
+    },
+    {
+      "name": "parameter_mismatch",
+      "horizon": 10.0,
+      "dt": 0.01,
+      "initial_state": [0.05, 0.0, 0.13962634015954636, 0.0],
+      "seed": 25,
+      "repetitions": 5,
+      "noise": {
+        "state_std": [0.0, 0.0, 0.0, 0.0]
+      },
+      "disturbance": {
+        "kind": "none",
+        "magnitude": 0.0,
+        "start_time": 0.0,
+        "duration": 0.0
+      },
+      "plant_overrides": {
+        "M": 1.12,
+        "m": 0.18,
+        "l": 0.56
+      }
+    }
+  ]
+}

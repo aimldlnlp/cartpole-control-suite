@@ -1,0 +1,18 @@
+{
+  "lqr_blend_weight": 1.0,
+  "sliding_surface": [4.6, 3.1, 4.8, 1.7],
+  "reach_gain": 2.2,
+  "boundary_layer": 0.25,
+  "cart_center_gain": 2.8,
+  "cart_velocity_gain": 3.6,
+  "settle_angle_deg": 6.0,
+  "settle_rate": 0.75,
+  "settle_cart_gain": 2.2,
+  "settle_cart_velocity_gain": 3.4,
+  "settle_trim_limit": 1.5,
+  "robust_decay_position_scale": 0.18,
+  "robust_decay_velocity_scale": 0.3,
+  "robust_decay_angle_deg": 5.0,
+  "robust_decay_rate_scale": 0.4,
+  "force_limit": 15.0
+}

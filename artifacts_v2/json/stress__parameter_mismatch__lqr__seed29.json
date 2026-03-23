@@ -1,0 +1,113 @@
+{
+  "artifact_version": "v2",
+  "controller_config": {
+    "force_limit": 15.0,
+    "gains": {
+      "Q": [
+        18.0,
+        6.0,
+        130.0,
+        14.0
+      ],
+      "R": 0.35
+    },
+    "name": "lqr"
+  },
+  "controller_name": "LQR",
+  "csv_path": "csv/stress__parameter_mismatch__lqr__seed29.csv",
+  "diagnosis": {
+    "balance_fraction": 0.985014985014985,
+    "failure_reason": null,
+    "first_balance_time": 0.15000000000000002,
+    "max_abs_theta_dot": 0.9606870301178012,
+    "max_abs_x": 0.33704766867482155,
+    "min_abs_theta_deg": 2.1955536899429838e-07,
+    "time_of_min_abs_theta": 10.0
+  },
+  "git_commit": null,
+  "invalid": false,
+  "metrics": {
+    "control_effort": 14.92004466313207,
+    "final_abs_theta_deg": 2.1955536899429838e-07,
+    "max_abs_force": 15.0,
+    "overshoot_deg": 9.83878170297692,
+    "settling_time": 2.48,
+    "steady_state_error_deg": 1.1994745911567558e-05,
+    "success": true,
+    "switch_time": 2.7755575615628914e-17
+  },
+  "plant_params": {
+    "M": 1.12,
+    "cart_friction": 0.02,
+    "force_limit": 15.0,
+    "g": 9.81,
+    "l": 0.56,
+    "m": 0.18,
+    "pendulum_inertia": 0.0,
+    "pivot_damping": 0.01,
+    "track_limit": 2.4
+  },
+  "render_paths": {},
+  "scenario_config": {
+    "disturbance": {
+      "duration": 0.0,
+      "kind": "none",
+      "magnitude": 0.0,
+      "start_time": 0.0
+    },
+    "dt": 0.01,
+    "horizon": 10.0,
+    "initial_state": [
+      0.05,
+      0.0,
+      0.13962634015954636,
+      0.0
+    ],
+    "name": "parameter_mismatch",
+    "noise": {
+      "state_std": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "plant_overrides": {
+      "M": 1.12,
+      "l": 0.56,
+      "m": 0.18
+    },
+    "seed": 29,
+    "suite_name": "stress"
+  },
+  "scenario_name": "parameter_mismatch",
+  "seed": 29,
+  "suite_name": "stress",
+  "swingup_config": {
+    "force_limit": 15.0,
+    "gains": {
+      "capture_rate_limit": 2.8,
+      "capture_theta_dot_gain": 18.0,
+      "capture_theta_gain": 60.0,
+      "capture_x_dot_gain": 4.5,
+      "capture_x_gain": 2.6,
+      "cart_position_gain": 0.45,
+      "cart_velocity_gain": 0.95,
+      "energy_gain": 3.8,
+      "energy_velocity_gain": 3.0
+    },
+    "name": "swingup"
+  },
+  "switch_config": {
+    "capture_energy_tolerance_ratio": 0.35,
+    "capture_entry_angle_deg": 40.0,
+    "capture_min_angle_deg": 15.0,
+    "capture_release_angle_deg": 50.0,
+    "enter_angle_deg": 12.0,
+    "enter_hold_time": 0.15,
+    "enter_rate": 1.0,
+    "exit_angle_deg": 20.0,
+    "exit_hold_time": 0.15
+  },
+  "track_violation": false
+}

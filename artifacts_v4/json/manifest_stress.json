@@ -1,0 +1,606 @@
+{
+  "artifact_version": "v2",
+  "runs": [
+    {
+      "controller": "LQR",
+      "csv_path": "csv/stress__measurement_noise__lqr__seed21.csv",
+      "json_path": "json/stress__measurement_noise__lqr__seed21.json",
+      "scenario": "measurement_noise",
+      "seed": 21,
+      "suite": "stress"
+    },
+    {
+      "controller": "Feedback Linearization (PFL)",
+      "csv_path": "csv/stress__measurement_noise__feedback_linearization_pfl__seed21.csv",
+      "json_path": "json/stress__measurement_noise__feedback_linearization_pfl__seed21.json",
+      "scenario": "measurement_noise",
+      "seed": 21,
+      "suite": "stress"
+    },
+    {
+      "controller": "Sliding Mode Control (SMC)",
+      "csv_path": "csv/stress__measurement_noise__sliding_mode_control_smc__seed21.csv",
+      "json_path": "json/stress__measurement_noise__sliding_mode_control_smc__seed21.json",
+      "scenario": "measurement_noise",
+      "seed": 21,
+      "suite": "stress"
+    },
+    {
+      "controller": "LQR",
+      "csv_path": "csv/stress__measurement_noise__lqr__seed22.csv",
+      "json_path": "json/stress__measurement_noise__lqr__seed22.json",
+      "scenario": "measurement_noise",
+      "seed": 22,
+      "suite": "stress"
+    },
+    {
+      "controller": "Feedback Linearization (PFL)",
+      "csv_path": "csv/stress__measurement_noise__feedback_linearization_pfl__seed22.csv",
+      "json_path": "json/stress__measurement_noise__feedback_linearization_pfl__seed22.json",
+      "scenario": "measurement_noise",
+      "seed": 22,
+      "suite": "stress"
+    },
+    {
+      "controller": "Sliding Mode Control (SMC)",
+      "csv_path": "csv/stress__measurement_noise__sliding_mode_control_smc__seed22.csv",
+      "json_path": "json/stress__measurement_noise__sliding_mode_control_smc__seed22.json",
+      "scenario": "measurement_noise",
+      "seed": 22,
+      "suite": "stress"
+    },
+    {
+      "controller": "LQR",
+      "csv_path": "csv/stress__measurement_noise__lqr__seed23.csv",
+      "json_path": "json/stress__measurement_noise__lqr__seed23.json",
+      "scenario": "measurement_noise",
+      "seed": 23,
+      "suite": "stress"
+    },
+    {
+      "controller": "Feedback Linearization (PFL)",
+      "csv_path": "csv/stress__measurement_noise__feedback_linearization_pfl__seed23.csv",
+      "json_path": "json/stress__measurement_noise__feedback_linearization_pfl__seed23.json",
+      "scenario": "measurement_noise",
+      "seed": 23,
+      "suite": "stress"
+    },
+    {
+      "controller": "Sliding Mode Control (SMC)",
+      "csv_path": "csv/stress__measurement_noise__sliding_mode_control_smc__seed23.csv",
+      "json_path": "json/stress__measurement_noise__sliding_mode_control_smc__seed23.json",
+      "scenario": "measurement_noise",
+      "seed": 23,
+      "suite": "stress"
+    },
+    {
+      "controller": "LQR",
+      "csv_path": "csv/stress__measurement_noise__lqr__seed24.csv",
+      "json_path": "json/stress__measurement_noise__lqr__seed24.json",
+      "scenario": "measurement_noise",
+      "seed": 24,
+      "suite": "stress"
+    },
+    {
+      "controller": "Feedback Linearization (PFL)",
+      "csv_path": "csv/stress__measurement_noise__feedback_linearization_pfl__seed24.csv",
+      "json_path": "json/stress__measurement_noise__feedback_linearization_pfl__seed24.json",
+      "scenario": "measurement_noise",
+      "seed": 24,
+      "suite": "stress"
+    },
+    {
+      "controller": "Sliding Mode Control (SMC)",
+      "csv_path": "csv/stress__measurement_noise__sliding_mode_control_smc__seed24.csv",
+      "json_path": "json/stress__measurement_noise__sliding_mode_control_smc__seed24.json",
+      "scenario": "measurement_noise",
+      "seed": 24,
+      "suite": "stress"
+    },
+    {
+      "controller": "LQR",
+      "csv_path": "csv/stress__measurement_noise__lqr__seed25.csv",
+      "json_path": "json/stress__measurement_noise__lqr__seed25.json",
+      "scenario": "measurement_noise",
+      "seed": 25,
+      "suite": "stress"
+    },
+    {
+      "controller": "Feedback Linearization (PFL)",
+      "csv_path": "csv/stress__measurement_noise__feedback_linearization_pfl__seed25.csv",
+      "json_path": "json/stress__measurement_noise__feedback_linearization_pfl__seed25.json",
+      "scenario": "measurement_noise",
+      "seed": 25,
+      "suite": "stress"
+    },
+    {
+      "controller": "Sliding Mode Control (SMC)",
+      "csv_path": "csv/stress__measurement_noise__sliding_mode_control_smc__seed25.csv",
+      "json_path": "json/stress__measurement_noise__sliding_mode_control_smc__seed25.json",
+      "scenario": "measurement_noise",
+      "seed": 25,
+      "suite": "stress"
+    },
+    {
+      "controller": "LQR",
+      "csv_path": "csv/stress__impulse_disturbance__lqr__seed22.csv",
+      "json_path": "json/stress__impulse_disturbance__lqr__seed22.json",
+      "scenario": "impulse_disturbance",
+      "seed": 22,
+      "suite": "stress"
+    },
+    {
+      "controller": "Feedback Linearization (PFL)",
+      "csv_path": "csv/stress__impulse_disturbance__feedback_linearization_pfl__seed22.csv",
+      "json_path": "json/stress__impulse_disturbance__feedback_linearization_pfl__seed22.json",
+      "scenario": "impulse_disturbance",
+      "seed": 22,
+      "suite": "stress"
+    },
+    {
+      "controller": "Sliding Mode Control (SMC)",
+      "csv_path": "csv/stress__impulse_disturbance__sliding_mode_control_smc__seed22.csv",
+      "json_path": "json/stress__impulse_disturbance__sliding_mode_control_smc__seed22.json",
+      "scenario": "impulse_disturbance",
+      "seed": 22,
+      "suite": "stress"
+    },
+    {
+      "controller": "LQR",
+      "csv_path": "csv/stress__impulse_disturbance__lqr__seed23.csv",
+      "json_path": "json/stress__impulse_disturbance__lqr__seed23.json",
+      "scenario": "impulse_disturbance",
+      "seed": 23,
+      "suite": "stress"
+    },
+    {
+      "controller": "Feedback Linearization (PFL)",
+      "csv_path": "csv/stress__impulse_disturbance__feedback_linearization_pfl__seed23.csv",
+      "json_path": "json/stress__impulse_disturbance__feedback_linearization_pfl__seed23.json",
+      "scenario": "impulse_disturbance",
+      "seed": 23,
+      "suite": "stress"
+    },
+    {
+      "controller": "Sliding Mode Control (SMC)",
+      "csv_path": "csv/stress__impulse_disturbance__sliding_mode_control_smc__seed23.csv",
+      "json_path": "json/stress__impulse_disturbance__sliding_mode_control_smc__seed23.json",
+      "scenario": "impulse_disturbance",
+      "seed": 23,
+      "suite": "stress"
+    },
+    {
+      "controller": "LQR",
+      "csv_path": "csv/stress__impulse_disturbance__lqr__seed24.csv",
+      "json_path": "json/stress__impulse_disturbance__lqr__seed24.json",
+      "scenario": "impulse_disturbance",
+      "seed": 24,
+      "suite": "stress"
+    },
+    {
+      "controller": "Feedback Linearization (PFL)",
+      "csv_path": "csv/stress__impulse_disturbance__feedback_linearization_pfl__seed24.csv",
+      "json_path": "json/stress__impulse_disturbance__feedback_linearization_pfl__seed24.json",
+      "scenario": "impulse_disturbance",
+      "seed": 24,
+      "suite": "stress"
+    },
+    {
+      "controller": "Sliding Mode Control (SMC)",
+      "csv_path": "csv/stress__impulse_disturbance__sliding_mode_control_smc__seed24.csv",
+      "json_path": "json/stress__impulse_disturbance__sliding_mode_control_smc__seed24.json",
+      "scenario": "impulse_disturbance",
+      "seed": 24,
+      "suite": "stress"
+    },
+    {
+      "controller": "LQR",
+      "csv_path": "csv/stress__impulse_disturbance__lqr__seed25.csv",
+      "json_path": "json/stress__impulse_disturbance__lqr__seed25.json",
+      "scenario": "impulse_disturbance",
+      "seed": 25,
+      "suite": "stress"
+    },
+    {
+      "controller": "Feedback Linearization (PFL)",
+      "csv_path": "csv/stress__impulse_disturbance__feedback_linearization_pfl__seed25.csv",
+      "json_path": "json/stress__impulse_disturbance__feedback_linearization_pfl__seed25.json",
+      "scenario": "impulse_disturbance",
+      "seed": 25,
+      "suite": "stress"
+    },
+    {
+      "controller": "Sliding Mode Control (SMC)",
+      "csv_path": "csv/stress__impulse_disturbance__sliding_mode_control_smc__seed25.csv",
+      "json_path": "json/stress__impulse_disturbance__sliding_mode_control_smc__seed25.json",
+      "scenario": "impulse_disturbance",
+      "seed": 25,
+      "suite": "stress"
+    },
+    {
+      "controller": "LQR",
+      "csv_path": "csv/stress__impulse_disturbance__lqr__seed26.csv",
+      "json_path": "json/stress__impulse_disturbance__lqr__seed26.json",
+      "scenario": "impulse_disturbance",
+      "seed": 26,
+      "suite": "stress"
+    },
+    {
+      "controller": "Feedback Linearization (PFL)",
+      "csv_path": "csv/stress__impulse_disturbance__feedback_linearization_pfl__seed26.csv",
+      "json_path": "json/stress__impulse_disturbance__feedback_linearization_pfl__seed26.json",
+      "scenario": "impulse_disturbance",
+      "seed": 26,
+      "suite": "stress"
+    },
+    {
+      "controller": "Sliding Mode Control (SMC)",
+      "csv_path": "csv/stress__impulse_disturbance__sliding_mode_control_smc__seed26.csv",
+      "json_path": "json/stress__impulse_disturbance__sliding_mode_control_smc__seed26.json",
+      "scenario": "impulse_disturbance",
+      "seed": 26,
+      "suite": "stress"
+    },
+    {
+      "controller": "LQR",
+      "csv_path": "csv/stress__friction_and_damping__lqr__seed23.csv",
+      "json_path": "json/stress__friction_and_damping__lqr__seed23.json",
+      "scenario": "friction_and_damping",
+      "seed": 23,
+      "suite": "stress"
+    },
+    {
+      "controller": "Feedback Linearization (PFL)",
+      "csv_path": "csv/stress__friction_and_damping__feedback_linearization_pfl__seed23.csv",
+      "json_path": "json/stress__friction_and_damping__feedback_linearization_pfl__seed23.json",
+      "scenario": "friction_and_damping",
+      "seed": 23,
+      "suite": "stress"
+    },
+    {
+      "controller": "Sliding Mode Control (SMC)",
+      "csv_path": "csv/stress__friction_and_damping__sliding_mode_control_smc__seed23.csv",
+      "json_path": "json/stress__friction_and_damping__sliding_mode_control_smc__seed23.json",
+      "scenario": "friction_and_damping",
+      "seed": 23,
+      "suite": "stress"
+    },
+    {
+      "controller": "LQR",
+      "csv_path": "csv/stress__friction_and_damping__lqr__seed24.csv",
+      "json_path": "json/stress__friction_and_damping__lqr__seed24.json",
+      "scenario": "friction_and_damping",
+      "seed": 24,
+      "suite": "stress"
+    },
+    {
+      "controller": "Feedback Linearization (PFL)",
+      "csv_path": "csv/stress__friction_and_damping__feedback_linearization_pfl__seed24.csv",
+      "json_path": "json/stress__friction_and_damping__feedback_linearization_pfl__seed24.json",
+      "scenario": "friction_and_damping",
+      "seed": 24,
+      "suite": "stress"
+    },
+    {
+      "controller": "Sliding Mode Control (SMC)",
+      "csv_path": "csv/stress__friction_and_damping__sliding_mode_control_smc__seed24.csv",
+      "json_path": "json/stress__friction_and_damping__sliding_mode_control_smc__seed24.json",
+      "scenario": "friction_and_damping",
+      "seed": 24,
+      "suite": "stress"
+    },
+    {
+      "controller": "LQR",
+      "csv_path": "csv/stress__friction_and_damping__lqr__seed25.csv",
+      "json_path": "json/stress__friction_and_damping__lqr__seed25.json",
+      "scenario": "friction_and_damping",
+      "seed": 25,
+      "suite": "stress"
+    },
+    {
+      "controller": "Feedback Linearization (PFL)",
+      "csv_path": "csv/stress__friction_and_damping__feedback_linearization_pfl__seed25.csv",
+      "json_path": "json/stress__friction_and_damping__feedback_linearization_pfl__seed25.json",
+      "scenario": "friction_and_damping",
+      "seed": 25,
+      "suite": "stress"
+    },
+    {
+      "controller": "Sliding Mode Control (SMC)",
+      "csv_path": "csv/stress__friction_and_damping__sliding_mode_control_smc__seed25.csv",
+      "json_path": "json/stress__friction_and_damping__sliding_mode_control_smc__seed25.json",
+      "scenario": "friction_and_damping",
+      "seed": 25,
+      "suite": "stress"
+    },
+    {
+      "controller": "LQR",
+      "csv_path": "csv/stress__friction_and_damping__lqr__seed26.csv",
+      "json_path": "json/stress__friction_and_damping__lqr__seed26.json",
+      "scenario": "friction_and_damping",
+      "seed": 26,
+      "suite": "stress"
+    },
+    {
+      "controller": "Feedback Linearization (PFL)",
+      "csv_path": "csv/stress__friction_and_damping__feedback_linearization_pfl__seed26.csv",
+      "json_path": "json/stress__friction_and_damping__feedback_linearization_pfl__seed26.json",
+      "scenario": "friction_and_damping",
+      "seed": 26,
+      "suite": "stress"
+    },
+    {
+      "controller": "Sliding Mode Control (SMC)",
+      "csv_path": "csv/stress__friction_and_damping__sliding_mode_control_smc__seed26.csv",
+      "json_path": "json/stress__friction_and_damping__sliding_mode_control_smc__seed26.json",
+      "scenario": "friction_and_damping",
+      "seed": 26,
+      "suite": "stress"
+    },
+    {
+      "controller": "LQR",
+      "csv_path": "csv/stress__friction_and_damping__lqr__seed27.csv",
+      "json_path": "json/stress__friction_and_damping__lqr__seed27.json",
+      "scenario": "friction_and_damping",
+      "seed": 27,
+      "suite": "stress"
+    },
+    {
+      "controller": "Feedback Linearization (PFL)",
+      "csv_path": "csv/stress__friction_and_damping__feedback_linearization_pfl__seed27.csv",
+      "json_path": "json/stress__friction_and_damping__feedback_linearization_pfl__seed27.json",
+      "scenario": "friction_and_damping",
+      "seed": 27,
+      "suite": "stress"
+    },
+    {
+      "controller": "Sliding Mode Control (SMC)",
+      "csv_path": "csv/stress__friction_and_damping__sliding_mode_control_smc__seed27.csv",
+      "json_path": "json/stress__friction_and_damping__sliding_mode_control_smc__seed27.json",
+      "scenario": "friction_and_damping",
+      "seed": 27,
+      "suite": "stress"
+    },
+    {
+      "controller": "LQR",
+      "csv_path": "csv/stress__large_angle_recovery__lqr__seed24.csv",
+      "json_path": "json/stress__large_angle_recovery__lqr__seed24.json",
+      "scenario": "large_angle_recovery",
+      "seed": 24,
+      "suite": "stress"
+    },
+    {
+      "controller": "Feedback Linearization (PFL)",
+      "csv_path": "csv/stress__large_angle_recovery__feedback_linearization_pfl__seed24.csv",
+      "json_path": "json/stress__large_angle_recovery__feedback_linearization_pfl__seed24.json",
+      "scenario": "large_angle_recovery",
+      "seed": 24,
+      "suite": "stress"
+    },
+    {
+      "controller": "Sliding Mode Control (SMC)",
+      "csv_path": "csv/stress__large_angle_recovery__sliding_mode_control_smc__seed24.csv",
+      "json_path": "json/stress__large_angle_recovery__sliding_mode_control_smc__seed24.json",
+      "scenario": "large_angle_recovery",
+      "seed": 24,
+      "suite": "stress"
+    },
+    {
+      "controller": "LQR",
+      "csv_path": "csv/stress__large_angle_recovery__lqr__seed25.csv",
+      "json_path": "json/stress__large_angle_recovery__lqr__seed25.json",
+      "scenario": "large_angle_recovery",
+      "seed": 25,
+      "suite": "stress"
+    },
+    {
+      "controller": "Feedback Linearization (PFL)",
+      "csv_path": "csv/stress__large_angle_recovery__feedback_linearization_pfl__seed25.csv",
+      "json_path": "json/stress__large_angle_recovery__feedback_linearization_pfl__seed25.json",
+      "scenario": "large_angle_recovery",
+      "seed": 25,
+      "suite": "stress"
+    },
+    {
+      "controller": "Sliding Mode Control (SMC)",
+      "csv_path": "csv/stress__large_angle_recovery__sliding_mode_control_smc__seed25.csv",
+      "json_path": "json/stress__large_angle_recovery__sliding_mode_control_smc__seed25.json",
+      "scenario": "large_angle_recovery",
+      "seed": 25,
+      "suite": "stress"
+    },
+    {
+      "controller": "LQR",
+      "csv_path": "csv/stress__large_angle_recovery__lqr__seed26.csv",
+      "json_path": "json/stress__large_angle_recovery__lqr__seed26.json",
+      "scenario": "large_angle_recovery",
+      "seed": 26,
+      "suite": "stress"
+    },
+    {
+      "controller": "Feedback Linearization (PFL)",
+      "csv_path": "csv/stress__large_angle_recovery__feedback_linearization_pfl__seed26.csv",
+      "json_path": "json/stress__large_angle_recovery__feedback_linearization_pfl__seed26.json",
+      "scenario": "large_angle_recovery",
+      "seed": 26,
+      "suite": "stress"
+    },
+    {
+      "controller": "Sliding Mode Control (SMC)",
+      "csv_path": "csv/stress__large_angle_recovery__sliding_mode_control_smc__seed26.csv",
+      "json_path": "json/stress__large_angle_recovery__sliding_mode_control_smc__seed26.json",
+      "scenario": "large_angle_recovery",
+      "seed": 26,
+      "suite": "stress"
+    },
+    {
+      "controller": "LQR",
+      "csv_path": "csv/stress__large_angle_recovery__lqr__seed27.csv",
+      "json_path": "json/stress__large_angle_recovery__lqr__seed27.json",
+      "scenario": "large_angle_recovery",
+      "seed": 27,
+      "suite": "stress"
+    },
+    {
+      "controller": "Feedback Linearization (PFL)",
+      "csv_path": "csv/stress__large_angle_recovery__feedback_linearization_pfl__seed27.csv",
+      "json_path": "json/stress__large_angle_recovery__feedback_linearization_pfl__seed27.json",
+      "scenario": "large_angle_recovery",
+      "seed": 27,
+      "suite": "stress"
+    },
+    {
+      "controller": "Sliding Mode Control (SMC)",
+      "csv_path": "csv/stress__large_angle_recovery__sliding_mode_control_smc__seed27.csv",
+      "json_path": "json/stress__large_angle_recovery__sliding_mode_control_smc__seed27.json",
+      "scenario": "large_angle_recovery",
+      "seed": 27,
+      "suite": "stress"
+    },
+    {
+      "controller": "LQR",
+      "csv_path": "csv/stress__large_angle_recovery__lqr__seed28.csv",
+      "json_path": "json/stress__large_angle_recovery__lqr__seed28.json",
+      "scenario": "large_angle_recovery",
+      "seed": 28,
+      "suite": "stress"
+    },
+    {
+      "controller": "Feedback Linearization (PFL)",
+      "csv_path": "csv/stress__large_angle_recovery__feedback_linearization_pfl__seed28.csv",
+      "json_path": "json/stress__large_angle_recovery__feedback_linearization_pfl__seed28.json",
+      "scenario": "large_angle_recovery",
+      "seed": 28,
+      "suite": "stress"
+    },
+    {
+      "controller": "Sliding Mode Control (SMC)",
+      "csv_path": "csv/stress__large_angle_recovery__sliding_mode_control_smc__seed28.csv",
+      "json_path": "json/stress__large_angle_recovery__sliding_mode_control_smc__seed28.json",
+      "scenario": "large_angle_recovery",
+      "seed": 28,
+      "suite": "stress"
+    },
+    {
+      "controller": "LQR",
+      "csv_path": "csv/stress__parameter_mismatch__lqr__seed25.csv",
+      "json_path": "json/stress__parameter_mismatch__lqr__seed25.json",
+      "scenario": "parameter_mismatch",
+      "seed": 25,
+      "suite": "stress"
+    },
+    {
+      "controller": "Feedback Linearization (PFL)",
+      "csv_path": "csv/stress__parameter_mismatch__feedback_linearization_pfl__seed25.csv",
+      "json_path": "json/stress__parameter_mismatch__feedback_linearization_pfl__seed25.json",
+      "scenario": "parameter_mismatch",
+      "seed": 25,
+      "suite": "stress"
+    },
+    {
+      "controller": "Sliding Mode Control (SMC)",
+      "csv_path": "csv/stress__parameter_mismatch__sliding_mode_control_smc__seed25.csv",
+      "json_path": "json/stress__parameter_mismatch__sliding_mode_control_smc__seed25.json",
+      "scenario": "parameter_mismatch",
+      "seed": 25,
+      "suite": "stress"
+    },
+    {
+      "controller": "LQR",
+      "csv_path": "csv/stress__parameter_mismatch__lqr__seed26.csv",
+      "json_path": "json/stress__parameter_mismatch__lqr__seed26.json",
+      "scenario": "parameter_mismatch",
+      "seed": 26,
+      "suite": "stress"
+    },
+    {
+      "controller": "Feedback Linearization (PFL)",
+      "csv_path": "csv/stress__parameter_mismatch__feedback_linearization_pfl__seed26.csv",
+      "json_path": "json/stress__parameter_mismatch__feedback_linearization_pfl__seed26.json",
+      "scenario": "parameter_mismatch",
+      "seed": 26,
+      "suite": "stress"
+    },
+    {
+      "controller": "Sliding Mode Control (SMC)",
+      "csv_path": "csv/stress__parameter_mismatch__sliding_mode_control_smc__seed26.csv",
+      "json_path": "json/stress__parameter_mismatch__sliding_mode_control_smc__seed26.json",
+      "scenario": "parameter_mismatch",
+      "seed": 26,
+      "suite": "stress"
+    },
+    {
+      "controller": "LQR",
+      "csv_path": "csv/stress__parameter_mismatch__lqr__seed27.csv",
+      "json_path": "json/stress__parameter_mismatch__lqr__seed27.json",
+      "scenario": "parameter_mismatch",
+      "seed": 27,
+      "suite": "stress"
+    },
+    {
+      "controller": "Feedback Linearization (PFL)",
+      "csv_path": "csv/stress__parameter_mismatch__feedback_linearization_pfl__seed27.csv",
+      "json_path": "json/stress__parameter_mismatch__feedback_linearization_pfl__seed27.json",
+      "scenario": "parameter_mismatch",
+      "seed": 27,
+      "suite": "stress"
+    },
+    {
+      "controller": "Sliding Mode Control (SMC)",
+      "csv_path": "csv/stress__parameter_mismatch__sliding_mode_control_smc__seed27.csv",
+      "json_path": "json/stress__parameter_mismatch__sliding_mode_control_smc__seed27.json",
+      "scenario": "parameter_mismatch",
+      "seed": 27,
+      "suite": "stress"
+    },
+    {
+      "controller": "LQR",
+      "csv_path": "csv/stress__parameter_mismatch__lqr__seed28.csv",
+      "json_path": "json/stress__parameter_mismatch__lqr__seed28.json",
+      "scenario": "parameter_mismatch",
+      "seed": 28,
+      "suite": "stress"
+    },
+    {
+      "controller": "Feedback Linearization (PFL)",
+      "csv_path": "csv/stress__parameter_mismatch__feedback_linearization_pfl__seed28.csv",
+      "json_path": "json/stress__parameter_mismatch__feedback_linearization_pfl__seed28.json",
+      "scenario": "parameter_mismatch",
+      "seed": 28,
+      "suite": "stress"
+    },
+    {
+      "controller": "Sliding Mode Control (SMC)",
+      "csv_path": "csv/stress__parameter_mismatch__sliding_mode_control_smc__seed28.csv",
+      "json_path": "json/stress__parameter_mismatch__sliding_mode_control_smc__seed28.json",
+      "scenario": "parameter_mismatch",
+      "seed": 28,
+      "suite": "stress"
+    },
+    {
+      "controller": "LQR",
+      "csv_path": "csv/stress__parameter_mismatch__lqr__seed29.csv",
+      "json_path": "json/stress__parameter_mismatch__lqr__seed29.json",
+      "scenario": "parameter_mismatch",
+      "seed": 29,
+      "suite": "stress"
+    },
+    {
+      "controller": "Feedback Linearization (PFL)",
+      "csv_path": "csv/stress__parameter_mismatch__feedback_linearization_pfl__seed29.csv",
+      "json_path": "json/stress__parameter_mismatch__feedback_linearization_pfl__seed29.json",
+      "scenario": "parameter_mismatch",
+      "seed": 29,
+      "suite": "stress"
+    },
+    {
+      "controller": "Sliding Mode Control (SMC)",
+      "csv_path": "csv/stress__parameter_mismatch__sliding_mode_control_smc__seed29.csv",
+      "json_path": "json/stress__parameter_mismatch__sliding_mode_control_smc__seed29.json",
+      "scenario": "parameter_mismatch",
+      "seed": 29,
+      "suite": "stress"
+    }
+  ],
+  "suite": "stress"
+}

@@ -1,0 +1,113 @@
+{
+  "artifact_version": "v2",
+  "controller_config": {
+    "force_limit": 15.0,
+    "gains": {
+      "boundary_layer": 0.2,
+      "cart_center_gain": 2.8,
+      "cart_velocity_gain": 3.6,
+      "lqr_blend_weight": 1.0,
+      "reach_gain": 2.4,
+      "sliding_surface": [
+        4.6,
+        3.1,
+        4.8,
+        1.7
+      ]
+    },
+    "name": "smc"
+  },
+  "controller_name": "Sliding Mode Control (SMC)",
+  "csv_path": "csv/nominal__local_small_angle__sliding_mode_control_smc__seed7.csv",
+  "diagnosis": {
+    "balance_fraction": 0.9812734082397003,
+    "failure_reason": "did_not_meet_settling_window",
+    "first_balance_time": 0.15000000000000002,
+    "max_abs_theta_dot": 0.6263142840832451,
+    "max_abs_x": 0.7306176870853206,
+    "min_abs_theta_deg": 2.4524538394296042e-05,
+    "time_of_min_abs_theta": 3.38
+  },
+  "git_commit": null,
+  "invalid": false,
+  "metrics": {
+    "control_effort": 8.823732567034822,
+    "final_abs_theta_deg": 0.025251308432278692,
+    "max_abs_force": 15.0,
+    "overshoot_deg": 10.107950302028671,
+    "settling_time": null,
+    "steady_state_error_deg": 0.01545939823640388,
+    "success": false,
+    "switch_time": 2.7755575615628914e-17
+  },
+  "plant_params": {
+    "M": 1.0,
+    "cart_friction": 0.02,
+    "force_limit": 15.0,
+    "g": 9.81,
+    "l": 0.5,
+    "m": 0.2,
+    "pendulum_inertia": 0.0,
+    "pivot_damping": 0.01,
+    "track_limit": 2.4
+  },
+  "render_paths": {},
+  "scenario_config": {
+    "disturbance": {
+      "duration": 0.0,
+      "kind": "none",
+      "magnitude": 0.0,
+      "start_time": 0.0
+    },
+    "dt": 0.01,
+    "horizon": 8.0,
+    "initial_state": [
+      0.05,
+      0.0,
+      0.13962634015954636,
+      0.0
+    ],
+    "name": "local_small_angle",
+    "noise": {
+      "state_std": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "plant_overrides": {},
+    "seed": 7,
+    "suite_name": "nominal"
+  },
+  "scenario_name": "local_small_angle",
+  "seed": 7,
+  "suite_name": "nominal",
+  "swingup_config": {
+    "force_limit": 15.0,
+    "gains": {
+      "capture_rate_limit": 2.8,
+      "capture_theta_dot_gain": 18.0,
+      "capture_theta_gain": 60.0,
+      "capture_x_dot_gain": 4.5,
+      "capture_x_gain": 2.6,
+      "cart_position_gain": 0.45,
+      "cart_velocity_gain": 0.95,
+      "energy_gain": 3.8,
+      "energy_velocity_gain": 3.0
+    },
+    "name": "swingup"
+  },
+  "switch_config": {
+    "capture_energy_tolerance_ratio": 0.35,
+    "capture_entry_angle_deg": 40.0,
+    "capture_min_angle_deg": 15.0,
+    "capture_release_angle_deg": 50.0,
+    "enter_angle_deg": 12.0,
+    "enter_hold_time": 0.15,
+    "enter_rate": 1.0,
+    "exit_angle_deg": 20.0,
+    "exit_hold_time": 0.15
+  },
+  "track_violation": false
+}

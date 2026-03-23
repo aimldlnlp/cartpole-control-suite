@@ -1,0 +1,18 @@
+{
+  "fps_mp4": 30,
+  "fps_gif": 20,
+  "canvas_size_single": [12.8, 7.2],
+  "canvas_size_comparison": [12.8, 7.2],
+  "duration_profiles": {
+    "extended": {
+      "title_hold": 1.5,
+      "playback_seconds": 15.5,
+      "outro_hold": 2.5
+    },
+    "extended_gif": {
+      "title_hold": 0.6,
+      "playback_seconds": 12.8,
+      "outro_hold": 1.4
+    }
+  }
+}

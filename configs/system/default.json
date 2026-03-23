@@ -1,0 +1,11 @@
+{
+  "M": 1.0,
+  "m": 0.2,
+  "l": 0.5,
+  "g": 9.81,
+  "cart_friction": 0.02,
+  "pivot_damping": 0.01,
+  "force_limit": 15.0,
+  "track_limit": 2.4,
+  "pendulum_inertia": 0.0
+}

@@ -1,0 +1,58 @@
+{
+  "themes": {
+    "paper_white": {
+      "font_family": "DejaVu Serif",
+      "dpi": 300,
+      "line_width": 1.5,
+      "axes_line_width": 0.85,
+      "background_color": "#FFFFFF",
+      "panel_color": "#FFFFFF",
+      "text_color": "#1F1F1F",
+      "grid_color": "#E9E9E9",
+      "spine_color": "#BBBBBB",
+      "accent_color": "#B89B4A",
+      "muted_color": "#666666",
+      "controller_colors": {
+        "LQR": "#314B6B",
+        "Feedback Linearization (PFL)": "#4E8082",
+        "Sliding Mode Control (SMC)": "#B06C52"
+      }
+    },
+    "editorial_muted": {
+      "font_family": "DejaVu Serif",
+      "dpi": 300,
+      "line_width": 1.6,
+      "axes_line_width": 0.95,
+      "background_color": "#F8F6F1",
+      "panel_color": "#FFFFFF",
+      "text_color": "#2A2E38",
+      "grid_color": "#E3DED4",
+      "spine_color": "#B8B1A5",
+      "accent_color": "#B78C2F",
+      "muted_color": "#8C918F",
+      "controller_colors": {
+        "LQR": "#334A67",
+        "Feedback Linearization (PFL)": "#4F7F80",
+        "Sliding Mode Control (SMC)": "#A96B56"
+      }
+    },
+    "editorial_jewel": {
+      "font_family": "DejaVu Serif",
+      "dpi": 300,
+      "line_width": 1.9,
+      "axes_line_width": 1.05,
+      "background_color": "#FBFAF7",
+      "panel_color": "#FFFFFF",
+      "text_color": "#1F2430",
+      "grid_color": "#D9D6CF",
+      "spine_color": "#A9A39A",
+      "accent_color": "#D4A017",
+      "muted_color": "#7E8797",
+      "controller_colors": {
+        "LQR": "#1F3A5F",
+        "Feedback Linearization (PFL)": "#0F8B8D",
+        "Sliding Mode Control (SMC)": "#C96A3D"
+      }
+    }
+  }
+}
