@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+from scipy import linalg, signal
 
 from cartpole_bench.dynamics.cartpole import CartPoleDynamics
 from cartpole_bench.types import CartPoleParams
@@ -30,6 +31,22 @@ def upright_state_space(params: CartPoleParams) -> tuple[np.ndarray, np.ndarray]
     B[1, 0] = inertia / det
     B[3, 0] = coupling / det
     return A, B
+
+
+def discrete_lqr_terminal_cost(
+    params: CartPoleParams,
+    dt: float,
+    Q: np.ndarray,
+    R: float | np.ndarray,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    A_c, B_c = upright_state_space(params)
+    A_d, B_d, _, _, _ = signal.cont2discrete((A_c, B_c, np.eye(4), np.zeros((4, 1))), dt)
+    A_d = np.asarray(A_d, dtype=float)
+    B_d = np.asarray(B_d, dtype=float).reshape(4, 1)
+    R_matrix = np.asarray([[float(R)]], dtype=float) if np.isscalar(R) else np.asarray(R, dtype=float)
+    P = np.asarray(linalg.solve_discrete_are(A_d, B_d, np.asarray(Q, dtype=float), R_matrix), dtype=float)
+    K = np.asarray(np.linalg.solve(B_d.T @ P @ B_d + R_matrix, B_d.T @ P @ A_d), dtype=float)
+    return A_d, B_d, P, K
 
 
 def finite_difference_state_space(

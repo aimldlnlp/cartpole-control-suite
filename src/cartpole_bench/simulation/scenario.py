@@ -5,7 +5,9 @@ from dataclasses import replace
 from cartpole_bench.config import load_controller_config, load_switch_config
 from cartpole_bench.controllers.base import BaseController
 from cartpole_bench.controllers.hybrid import HybridController
+from cartpole_bench.controllers.ilqr import IterativeLQRController
 from cartpole_bench.controllers.lqr import LQRController
+from cartpole_bench.controllers.mpc import ModelPredictiveController
 from cartpole_bench.controllers.pfl import PartialFeedbackLinearizationController
 from cartpole_bench.controllers.smc import SlidingModeController
 from cartpole_bench.controllers.swingup import EnergySwingUpController
@@ -13,7 +15,7 @@ from cartpole_bench.dynamics.cartpole import CartPoleDynamics
 from cartpole_bench.types import CartPoleParams, ControllerConfig, ScenarioConfig
 
 
-CONTROLLER_KEYS = ("lqr", "pfl", "smc")
+CONTROLLER_KEYS = ("lqr", "pfl", "smc", "ilqr", "mpc")
 
 
 def controller_label(key: str) -> str:
@@ -21,6 +23,8 @@ def controller_label(key: str) -> str:
         "lqr": "LQR",
         "pfl": "Feedback Linearization (PFL)",
         "smc": "Sliding Mode Control (SMC)",
+        "ilqr": "Iterative LQR (iLQR)",
+        "mpc": "Model Predictive Control (MPC)",
     }[key]
 
 
@@ -46,6 +50,12 @@ def build_stabilizer(
         smc_config = controller_override or load_controller_config("smc")
         lqr_config = load_controller_config("lqr")
         return SlidingModeController(smc_config, model_params, lqr_config), smc_config.to_dict()
+    if key == "ilqr":
+        config = controller_override or load_controller_config("ilqr")
+        return IterativeLQRController(config, model_params), config.to_dict()
+    if key == "mpc":
+        config = controller_override or load_controller_config("mpc")
+        return ModelPredictiveController(config, model_params), config.to_dict()
     raise ValueError(f"Unknown controller key: {key}")
 
 
@@ -65,5 +75,5 @@ def build_hybrid_controller(
     return hybrid, {
         "controller": controller_cfg,
         "swingup": swing_config.to_dict(),
-        "switch": switch_config.to_dict(),
+        "switch": hybrid.switch_config.to_dict(),
     }

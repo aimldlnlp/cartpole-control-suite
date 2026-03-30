@@ -15,7 +15,7 @@ class PartialFeedbackLinearizationController(BaseController):
         self.lqr = LQRController(lqr_config, params)
         self.lqr_assist_weight = float(config.gains.get("lqr_assist_weight", 0.55))
 
-    def compute_control(self, t: float, state: np.ndarray) -> float:
+    def compute_control(self, t: float, state: np.ndarray, dt: float | None = None) -> float:
         x, x_dot, theta, theta_dot = np.asarray(state, dtype=float)
         p = self.params
         g = self.config.gains
@@ -45,6 +45,6 @@ class PartialFeedbackLinearizationController(BaseController):
             + p.cart_friction * x_dot
             + p.m * p.l * theta_dot * theta_dot * np.sin(theta)
         )
-        nominal = self.lqr.compute_control(t, state)
+        nominal = self.lqr.compute_control(t, state, dt)
         blended = (1.0 - self.lqr_assist_weight) * float(control) + self.lqr_assist_weight * nominal
         return self.saturate(float(blended))

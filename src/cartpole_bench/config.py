@@ -7,6 +7,7 @@ from cartpole_bench.types import (
     CartPoleParams,
     ControllerConfig,
     DisturbanceConfig,
+    EstimatorConfig,
     NoiseConfig,
     RenderThemeConfig,
     ScenarioConfig,
@@ -28,6 +29,11 @@ def load_controller_config(name: str, config_root: Path = CONFIG_ROOT) -> Contro
     payload = load_json(config_root / "controllers" / f"{name}.json")
     gains = {key: value for key, value in payload.items() if key != "force_limit"}
     return ControllerConfig(name=name, gains=gains, force_limit=payload["force_limit"])
+
+
+def load_estimator_config(name: str, config_root: Path = CONFIG_ROOT) -> EstimatorConfig:
+    payload = load_json(config_root / "estimators" / f"{name}.json")
+    return EstimatorConfig(name=name, gains=payload)
 
 
 def load_switch_config() -> SwitchConfig:
@@ -92,3 +98,21 @@ def load_video_config(config_root: Path = CONFIG_ROOT) -> VideoRenderConfig:
         canvas_size_comparison=tuple(payload["canvas_size_comparison"]),
         duration_profiles=payload["duration_profiles"],
     )
+
+
+def parse_controller_keys(raw: str | None, available: tuple[str, ...]) -> tuple[str, ...]:
+    if raw is None:
+        return available
+    keys = tuple(part.strip().lower() for part in raw.split(",") if part.strip())
+    if not keys:
+        raise ValueError("At least one controller key must be specified.")
+    invalid = [key for key in keys if key not in available]
+    if invalid:
+        raise ValueError(f"Unknown controller key(s): {', '.join(invalid)}")
+    deduped = []
+    seen = set()
+    for key in keys:
+        if key not in seen:
+            deduped.append(key)
+            seen.add(key)
+    return tuple(deduped)

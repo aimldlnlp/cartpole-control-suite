@@ -75,12 +75,22 @@ class ControllerConfig:
 
 
 @dataclass(slots=True)
+class EstimatorConfig:
+    name: str
+    gains: dict[str, Any]
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(slots=True)
 class SimulationConfig:
     horizon: float
     dt: float
     seed: int
     force_limit: float
     track_limit: float
+    estimator_name: str = "none"
 
     @property
     def steps(self) -> int:
@@ -102,13 +112,14 @@ class ScenarioConfig:
     disturbance: DisturbanceConfig = field(default_factory=DisturbanceConfig)
     plant_overrides: dict[str, Any] = field(default_factory=dict)
 
-    def simulation_config(self, params: CartPoleParams) -> SimulationConfig:
+    def simulation_config(self, params: CartPoleParams, estimator_name: str = "none") -> SimulationConfig:
         return SimulationConfig(
             horizon=self.horizon,
             dt=self.dt,
             seed=self.seed,
             force_limit=params.force_limit,
             track_limit=params.track_limit,
+            estimator_name=estimator_name,
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -160,12 +171,14 @@ class RunMetrics:
 @dataclass(slots=True)
 class TrajectoryResult:
     controller_name: str
+    estimator_name: str
     scenario_name: str
     suite_name: str
     seed: int
     time: np.ndarray
     states: np.ndarray
     observations: np.ndarray
+    estimates: np.ndarray
     controls: np.ndarray
     disturbances: np.ndarray
     modes: list[str]
@@ -177,6 +190,7 @@ class TrajectoryResult:
     def to_dict(self) -> dict[str, Any]:
         return {
             "controller_name": self.controller_name,
+            "estimator_name": self.estimator_name,
             "scenario_name": self.scenario_name,
             "suite_name": self.suite_name,
             "seed": self.seed,
@@ -190,6 +204,7 @@ class TrajectoryResult:
 @dataclass(slots=True)
 class BatchSummary:
     controller_name: str
+    estimator_name: str
     samples: int
     success_rate: float
     success_count: int

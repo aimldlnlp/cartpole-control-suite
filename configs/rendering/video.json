@@ -2,7 +2,7 @@
   "fps_mp4": 30,
   "fps_gif": 20,
   "canvas_size_single": [12.8, 7.2],
-  "canvas_size_comparison": [12.8, 7.2],
+  "canvas_size_comparison": [15.2, 8.6],
   "duration_profiles": {
     "extended": {
       "title_hold": 1.5,

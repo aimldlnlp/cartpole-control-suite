@@ -7,6 +7,7 @@ import matplotlib
 matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib import colors as mcolors
 
 from cartpole_bench.config import load_theme_config
@@ -118,6 +119,45 @@ def add_badge(ax, text: str, theme_cfg: RenderThemeConfig) -> None:
         fontsize=8,
         color=theme_cfg.accent_color,
         bbox={"boxstyle": "round,pad=0.25", "facecolor": soften(theme_cfg.accent_color, 0.88), "edgecolor": theme_cfg.accent_color},
+    )
+
+
+def add_event_band(ax, start: float, end: float, theme_cfg: RenderThemeConfig, alpha: float = 0.08) -> None:
+    ax.axvspan(start, end, color=theme_cfg.accent_color, alpha=alpha, linewidth=0.0)
+
+
+def plot_percentile_band(
+    ax,
+    x: np.ndarray,
+    samples: np.ndarray,
+    color: str,
+    *,
+    median_width: float = 1.9,
+    band_alpha: float = 0.16,
+    label: str | None = None,
+) -> None:
+    lower = np.nanpercentile(samples, 25.0, axis=0)
+    median = np.nanpercentile(samples, 50.0, axis=0)
+    upper = np.nanpercentile(samples, 75.0, axis=0)
+    ax.fill_between(x, lower, upper, color=color, alpha=band_alpha, linewidth=0.0)
+    ax.plot(x, median, color=color, linewidth=median_width, label=label)
+
+
+def controller_badge(ax, text: str, color: str, theme_cfg: RenderThemeConfig, *, y: float = 0.965) -> None:
+    ax.text(
+        0.03,
+        y,
+        text,
+        transform=ax.transAxes,
+        ha="left",
+        va="top",
+        fontsize=8.0,
+        color=color,
+        bbox={
+            "boxstyle": "round,pad=0.22",
+            "facecolor": soften(color, 0.85),
+            "edgecolor": color,
+        },
     )
 
 

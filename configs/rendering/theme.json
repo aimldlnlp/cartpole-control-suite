@@ -15,7 +15,9 @@
       "controller_colors": {
         "LQR": "#314B6B",
         "Feedback Linearization (PFL)": "#4E8082",
-        "Sliding Mode Control (SMC)": "#B06C52"
+        "Sliding Mode Control (SMC)": "#B06C52",
+        "Iterative LQR (iLQR)": "#7A5D9A",
+        "Model Predictive Control (MPC)": "#4E7A4A"
       }
     },
     "editorial_muted": {
@@ -33,7 +35,9 @@
       "controller_colors": {
         "LQR": "#334A67",
         "Feedback Linearization (PFL)": "#4F7F80",
-        "Sliding Mode Control (SMC)": "#A96B56"
+        "Sliding Mode Control (SMC)": "#A96B56",
+        "Iterative LQR (iLQR)": "#7A5D9A",
+        "Model Predictive Control (MPC)": "#507548"
       }
     },
     "editorial_jewel": {
@@ -51,7 +55,9 @@
       "controller_colors": {
         "LQR": "#1F3A5F",
         "Feedback Linearization (PFL)": "#0F8B8D",
-        "Sliding Mode Control (SMC)": "#C96A3D"
+        "Sliding Mode Control (SMC)": "#C96A3D",
+        "Iterative LQR (iLQR)": "#7E57A0",
+        "Model Predictive Control (MPC)": "#3E7C45"
       }
     }
   }

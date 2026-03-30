@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 import math
 
 import numpy as np
@@ -17,7 +18,8 @@ class HybridController:
     ) -> None:
         self.swingup_controller = swingup_controller
         self.stabilizer = stabilizer
-        self.switch_config = switch_config
+        self.base_switch_config = switch_config
+        self.switch_config = replace(switch_config, **stabilizer.switch_overrides())
         self.stage = "energy_pump"
         self.time_inside_balance_gate = 0.0
         self.time_outside_balance = 0.0
@@ -82,7 +84,7 @@ class HybridController:
                     self.stage = "capture_assist"
 
         if self.stage == "balance":
-            return self.stabilizer.compute_control(t, state), "balance"
+            return self.stabilizer.compute_control(t, state, dt), "balance"
         if self.stage == "capture_assist":
-            return self.swingup_controller.compute_capture_control(t, state), "capture_assist"
-        return self.swingup_controller.compute_control(t, state), "energy_pump"
+            return self.swingup_controller.compute_capture_control(t, state, dt), "capture_assist"
+        return self.swingup_controller.compute_control(t, state, dt), "energy_pump"

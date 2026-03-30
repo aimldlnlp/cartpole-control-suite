@@ -18,7 +18,7 @@ class LQRController(BaseController):
         P = linalg.solve_continuous_are(A, B, Q, R)
         self.K = np.asarray(np.linalg.solve(R, B.T @ P), dtype=float).reshape(-1)
 
-    def compute_control(self, t: float, state: np.ndarray) -> float:
+    def compute_control(self, t: float, state: np.ndarray, dt: float | None = None) -> float:
         x = np.asarray(state, dtype=float).reshape(-1)
         control = -float(self.K @ x)
         return self.saturate(control)

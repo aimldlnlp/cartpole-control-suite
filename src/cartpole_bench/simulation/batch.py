@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
@@ -15,6 +14,7 @@ from cartpole_bench.simulation.scenario import CONTROLLER_KEYS
 from cartpole_bench.types import BatchSummary, DisturbanceConfig, NoiseConfig, ScenarioConfig
 from cartpole_bench.utils.io import save_json
 from cartpole_bench.utils.paths import artifact_roots
+from cartpole_bench.utils.progress import NullProgressReporter, PhaseTimer, ProgressEvent, ProgressReporter
 from cartpole_bench.utils.seed import make_rng
 
 try:
@@ -104,24 +104,68 @@ def _sample_scenarios(samples: int) -> list[tuple[ScenarioConfig, dict[str, floa
     return scenarios
 
 
-def run_monte_carlo(output_dir: Path, requested_device: str = "cpu", samples: int | None = None) -> list[BatchSummary]:
+def run_monte_carlo(
+    output_dir: Path,
+    requested_device: str = "cpu",
+    samples: int | None = None,
+    controllers: tuple[str, ...] = CONTROLLER_KEYS,
+    estimator_name: str = "none",
+    progress: ProgressReporter | None = None,
+) -> list[BatchSummary]:
+    progress = progress or NullProgressReporter()
     roots = artifact_roots(output_dir)
     cfg = load_monte_carlo_config()
     sample_count = int(cfg["samples"]) if samples is None else int(samples)
     execution_device = resolve_execution_device(requested_device)
     scenarios = _sample_scenarios(sample_count)
     nominal_params = load_system_params()
+    overall_timer = PhaseTimer()
 
     sample_rows: list[dict[str, float | str | bool | None]] = []
     summaries: list[BatchSummary] = []
+    progress.emit(
+        ProgressEvent(
+            domain="monte_carlo",
+            stage="start",
+            current=0,
+            total=len(controllers),
+            context={
+                "estimator": estimator_name,
+                "note": f"samples={sample_count}, controllers={','.join(controllers)}",
+            },
+        )
+    )
 
-    for controller_key in CONTROLLER_KEYS:
+    for controller_index, controller_key in enumerate(controllers, start=1):
+        controller_timer = PhaseTimer()
         controller_rows = []
+        progress.emit(
+            ProgressEvent(
+                domain="monte_carlo",
+                stage="controller_start",
+                current=controller_index,
+                total=len(controllers),
+                context={
+                    "controller": controller_key,
+                    "estimator": estimator_name,
+                    "note": f"samples={sample_count}",
+                },
+                elapsed_s=overall_timer.elapsed(),
+                eta_s=overall_timer.eta(controller_index - 1, len(controllers)),
+            )
+        )
+        emit_each = 1 if sample_count <= 50 else max(1, sample_count // 20)
         for index, (scenario, sample_meta) in enumerate(scenarios):
-            result, _, _ = simulate_trajectory(scenario, controller_key, nominal_params)
+            result, _, _ = simulate_trajectory(
+                scenario,
+                controller_key,
+                nominal_params,
+                estimator_name=estimator_name,
+            )
             row = {
                 "sample_id": index,
                 "controller": result.controller_name,
+                "estimator": result.estimator_name,
                 "device_requested": requested_device,
                 "device_used": execution_device,
                 "success": result.metrics.success,
@@ -136,6 +180,23 @@ def run_monte_carlo(output_dir: Path, requested_device: str = "cpu", samples: in
             }
             sample_rows.append(row)
             controller_rows.append(row)
+            sample_done = index + 1
+            if sample_done == 1 or sample_done == sample_count or sample_done % emit_each == 0:
+                progress.emit(
+                    ProgressEvent(
+                        domain="monte_carlo",
+                        stage="sample",
+                        current=sample_done,
+                        total=sample_count,
+                        context={
+                            "controller": controller_key,
+                            "estimator": estimator_name,
+                            "sample_id": index,
+                        },
+                        elapsed_s=controller_timer.elapsed(),
+                        eta_s=controller_timer.eta(sample_done, sample_count),
+                    )
+                )
 
         success_values = np.asarray([float(row["success"]) for row in controller_rows], dtype=float)
         invalid_values = np.asarray([float(row["invalid"]) for row in controller_rows], dtype=float)
@@ -151,6 +212,7 @@ def run_monte_carlo(output_dir: Path, requested_device: str = "cpu", samples: in
         summaries.append(
             BatchSummary(
                 controller_name=str(controller_rows[0]["controller"]),
+                estimator_name=str(controller_rows[0]["estimator"]),
                 samples=sample_count,
                 success_rate=float(np.mean(success_values)),
                 success_count=int(np.sum(success_values)),
@@ -162,9 +224,33 @@ def run_monte_carlo(output_dir: Path, requested_device: str = "cpu", samples: in
                 invalid_rate=float(np.mean(invalid_values)),
             )
         )
+        progress.emit(
+            ProgressEvent(
+                domain="monte_carlo",
+                stage="controller_end",
+                current=controller_index,
+                total=len(controllers),
+                context={
+                    "controller": controller_key,
+                    "estimator": estimator_name,
+                    "note": f"success_rate={summaries[-1].success_rate:.3f}",
+                },
+                elapsed_s=overall_timer.elapsed(),
+                eta_s=overall_timer.eta(controller_index, len(controllers)),
+            )
+        )
 
     sample_frame = pd.DataFrame(sample_rows)
-    sample_frame.to_csv(roots["tables"] / "monte_carlo_samples.csv", index=False)
+    sample_path = roots["tables"] / "monte_carlo_samples.csv"
+    if sample_path.exists():
+        existing = pd.read_csv(sample_path)
+        if {"controller", "estimator"}.issubset(existing.columns):
+            pairs = set(zip(sample_frame["controller"], sample_frame["estimator"], strict=True))
+            existing = existing[
+                ~existing.apply(lambda row: (row["controller"], row["estimator"]) in pairs, axis=1)
+            ]
+        sample_frame = pd.concat([existing, sample_frame], ignore_index=True)
+    sample_frame.to_csv(sample_path, index=False)
     save_json(
         roots["tables"] / "monte_carlo_samples.json",
         {
@@ -175,14 +261,26 @@ def run_monte_carlo(output_dir: Path, requested_device: str = "cpu", samples: in
     write_monte_carlo_summary(roots["tables"], summaries)
     write_manifest(
         roots,
-        "monte_carlo",
+        f"monte_carlo_{estimator_name}",
         {
             "suite": "monte_carlo",
             "device_requested": requested_device,
             "device_used": execution_device,
+            "estimator_name": estimator_name,
             "samples": sample_count,
             "summary_rows": [summary.to_dict() for summary in summaries],
             "sample_table": str((roots["tables"] / "monte_carlo_samples.csv").relative_to(roots["base"])),
         },
+    )
+    progress.emit(
+        ProgressEvent(
+            domain="monte_carlo",
+            stage="done",
+            current=len(controllers),
+            total=len(controllers),
+            context={"estimator": estimator_name, "note": f"controllers={len(summaries)}"},
+            elapsed_s=overall_timer.elapsed(),
+            eta_s=0.0,
+        )
     )
     return summaries

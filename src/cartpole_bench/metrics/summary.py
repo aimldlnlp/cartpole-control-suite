@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Iterable
 
+import numpy as np
 import pandas as pd
 
 from cartpole_bench import ARTIFACT_VERSION
@@ -18,6 +19,7 @@ def results_to_frame(results: Iterable[TrajectoryResult]) -> pd.DataFrame:
                 "suite": result.suite_name,
                 "scenario": result.scenario_name,
                 "controller": result.controller_name,
+                "estimator": result.estimator_name,
                 "settling_time": result.metrics.settling_time,
                 "overshoot_deg": result.metrics.overshoot_deg,
                 "steady_state_error_deg": result.metrics.steady_state_error_deg,
@@ -47,29 +49,51 @@ def monte_carlo_to_frame(summaries: Iterable[BatchSummary]) -> pd.DataFrame:
     return pd.DataFrame([summary.to_dict() for summary in summaries])
 
 
+def _safe_mean(series: pd.Series) -> float | None:
+    numeric = pd.to_numeric(series, errors="coerce")
+    finite = numeric[np.isfinite(numeric)]
+    if finite.empty:
+        return None
+    return float(finite.mean())
+
+
+def _safe_median(series: pd.Series) -> float | None:
+    numeric = pd.to_numeric(series, errors="coerce")
+    finite = numeric[np.isfinite(numeric)]
+    if finite.empty:
+        return None
+    return float(finite.median())
+
+
 def aggregate_metric_table(results: Iterable[TrajectoryResult]) -> pd.DataFrame:
     frame = results_to_frame(results)
     if frame.empty:
         return frame
-    return (
-        frame.groupby(["suite", "scenario", "controller"], as_index=False)
-        .agg(
-            runs=("seed", "count"),
-            success_count=("success", "sum"),
-            success_rate=("success_rate", "mean"),
-            handoff_rate=("handoff", "mean"),
-            settling_time_median=("settling_time", "median"),
-            overshoot_deg_median=("overshoot_deg", "median"),
-            steady_state_error_deg_median=("steady_state_error_deg", "median"),
-            control_effort_median=("control_effort", "median"),
-            first_balance_time_median=("first_balance_time", "median"),
-            min_abs_theta_deg_median=("min_abs_theta_deg", "median"),
-            balance_fraction_median=("balance_fraction", "median"),
-            invalid_rate=("invalid", "mean"),
-            track_violation_rate=("track_violation", "mean"),
+    rows = []
+    grouped = frame.groupby(["suite", "scenario", "controller", "estimator"], dropna=False, sort=True)
+    for (suite, scenario, controller, estimator), group in grouped:
+        rows.append(
+            {
+                "suite": suite,
+                "scenario": scenario,
+                "controller": controller,
+                "estimator": estimator,
+                "runs": int(group["seed"].count()),
+                "success_count": int(pd.to_numeric(group["success"], errors="coerce").fillna(0.0).sum()),
+                "success_rate": _safe_mean(group["success_rate"]),
+                "handoff_rate": _safe_mean(group["handoff"]),
+                "settling_time_median": _safe_median(group["settling_time"]),
+                "overshoot_deg_median": _safe_median(group["overshoot_deg"]),
+                "steady_state_error_deg_median": _safe_median(group["steady_state_error_deg"]),
+                "control_effort_median": _safe_median(group["control_effort"]),
+                "first_balance_time_median": _safe_median(group["first_balance_time"]),
+                "min_abs_theta_deg_median": _safe_median(group["min_abs_theta_deg"]),
+                "balance_fraction_median": _safe_median(group["balance_fraction"]),
+                "invalid_rate": _safe_mean(group["invalid"]),
+                "track_violation_rate": _safe_mean(group["track_violation"]),
+            }
         )
-        .sort_values(["suite", "scenario", "controller"])
-    )
+    return pd.DataFrame(rows).sort_values(["suite", "scenario", "controller", "estimator"], ignore_index=True)
 
 
 def _markdown_table(frame: pd.DataFrame) -> str:
@@ -82,6 +106,9 @@ def _markdown_table(frame: pd.DataFrame) -> str:
     for row in frame.itertuples(index=False):
         values = []
         for value in row:
+            if pd.isna(value):
+                values.append("NA")
+                continue
             if isinstance(value, float):
                 values.append(f"{value:.4f}")
             else:
@@ -111,7 +138,16 @@ def write_metric_summaries(output_dir: Path, results: Iterable[TrajectoryResult]
 def write_monte_carlo_summary(output_dir: Path, summaries: Iterable[BatchSummary]) -> pd.DataFrame:
     frame = monte_carlo_to_frame(summaries)
     output_dir.mkdir(parents=True, exist_ok=True)
-    frame.to_csv(output_dir / "monte_carlo_summary.csv", index=False)
+    csv_path = output_dir / "monte_carlo_summary.csv"
+    if csv_path.exists():
+        existing = pd.read_csv(csv_path)
+        if {"controller_name", "estimator_name"}.issubset(existing.columns) and not frame.empty:
+            pairs = set(zip(frame["controller_name"], frame["estimator_name"], strict=True))
+            existing = existing[
+                ~existing.apply(lambda row: (row["controller_name"], row["estimator_name"]) in pairs, axis=1)
+            ]
+            frame = pd.concat([existing, frame], ignore_index=True)
+    frame.to_csv(csv_path, index=False)
     save_json(
         output_dir / "monte_carlo_summary.json",
         {

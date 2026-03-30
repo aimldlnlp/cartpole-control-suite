@@ -1,0 +1,5 @@
+{
+  "process_std": [0.002, 0.02, 0.002, 0.03],
+  "measurement_floor": 1e-06,
+  "initial_cov_diag": [0.001, 0.01, 0.001, 0.01]
+}

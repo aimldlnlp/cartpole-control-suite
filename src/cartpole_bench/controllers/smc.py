@@ -28,12 +28,12 @@ class SlidingModeController(BaseController):
         self.robust_decay_rate_scale = float(config.gains.get("robust_decay_rate_scale", 0.35))
         self.lqr = LQRController(lqr_config, params)
 
-    def compute_control(self, t: float, state: np.ndarray) -> float:
+    def compute_control(self, t: float, state: np.ndarray, dt: float | None = None) -> float:
         x = np.asarray(state, dtype=float)
         theta_err = float(wrap_angle(x[2]))
         sliding_state = np.array([x[0], x[1], theta_err, x[3]], dtype=float)
         sigma = float(self.surface @ sliding_state)
-        nominal = self.lqr.compute_control(t, x)
+        nominal = self.lqr.compute_control(t, x, dt)
         state_envelope = (
             abs(float(x[0])) / max(self.robust_decay_position_scale, 1e-6)
             + abs(float(x[1])) / max(self.robust_decay_velocity_scale, 1e-6)

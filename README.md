@@ -1,98 +1,82 @@
-# Nonlinear Cart-Pole
+# Nonlinear Cart-Pole Benchmark
 
-*Full nonlinear cart-pole dynamics, shared swing-up, and three compared upright stabilizers: `LQR`, `PFL`, and `SMC`.*
+Portfolio-grade nonlinear cart-pole benchmark comparing five upright stabilizers under a shared swing-up pipeline, with optional EKF state estimation, reproducible suites, curated figures, and synchronized animations.
 
-This repository packages a nonlinear cart-pole benchmark with repeatable experiment suites, artifact export, figure generation, and GIF rendering. The project compares three stabilization strategies under the same swing-up and capture pipeline so that the differences come from the balance controller rather than from different task setups.
+## Hero Visual
 
-## Preview
+![Nominal full-task comparison](docs/media/side_by_side_nominal_comparison.gif)
 
-![Nominal comparison](docs/media/side_by_side_nominal_comparison.gif)
+Synchronized nominal full-task comparison across `LQR`, `PFL`, `SMC`, `iLQR`, and `MPC`.
 
-Nominal full-task comparison with synchronized playback across `LQR`, `PFL`, and `SMC`.
+## What This Repo Is
 
-![Handoff focus comparison](docs/media/handoff_focus_comparison.gif)
+This repository packages a nonlinear cart-pole benchmark for control engineering and portfolio presentation. It is built around a single plant model, a shared swing-up and capture stack, and multiple near-upright stabilizers so that controller differences are evaluated under the same task setup.
 
-Zoomed comparison around balance entry, centered on the capture-to-stabilization transition.
+The repo includes:
 
-## Why Nonlinear Cart-Pole
+- full nonlinear cart-pole dynamics with track and force limits
+- repeated-seed `nominal` and `stress` suites
+- Monte Carlo robustness evaluation
+- export of per-run CSV and JSON artifacts
+- publication-style figure rendering
+- animation rendering for single-controller and full-comparison views
 
-The cart-pole is compact enough to understand end to end, but still exposes real control design tradeoffs:
-
-- nonlinear, underactuated dynamics
-- switching between energy injection and near-upright stabilization
-- state and input constraints
-- robustness questions under disturbance, noise, friction, and parameter mismatch
-- clear controller tradeoffs that can be visualized directly
-
-This repository is written as an engineering benchmark and demonstration rather than a formal research study.
-
-## System Model
-
-The state is
-
-```text
-s = [x, x_dot, theta, theta_dot]
-```
-
-with the convention:
-
-- `theta = 0` is upright
-- `theta = pi` is downward
-- angles are wrapped to `[-pi, pi]`
-
-The plant model is fully nonlinear and includes:
-
-- cart friction
-- pivot damping
-- force saturation
-- track limits
-- optional pulse disturbances
-- optional measurement noise
-
-Nominal plant parameters are defined in `configs/system/default.json`.
+It is an engineering benchmark, not a formal research benchmark.
 
 ## Control Stack
 
-### Shared swing-up
-
-All controllers use the same shared pre-balance pipeline:
-
-- `energy_pump` for continuous energy shaping and cart centering
-- `capture_assist` for the near-upright approach before handoff
-
-### Stabilizers
-
-The compared balance controllers are:
-
-- `LQR`
-- `Feedback Linearization (PFL)`
-- `Sliding Mode Control (SMC)`
-
-### Hybrid switching
-
-The runtime controller moves through:
+All controllers share the same hybrid pre-balance flow:
 
 - `energy_pump`
 - `capture_assist`
 - `balance`
 
-Each run stores explicit handoff and failure diagnostics, including:
+The balance-stage stabilizers currently implemented are:
 
-- `failure_reason`
-- `first_balance_time`
-- `balance_fraction`
-- `min_abs_theta_deg`
-- `max_abs_x`
-- `max_abs_theta_dot`
+- `LQR`
+- `Feedback Linearization (PFL)`
+- `Sliding Mode Control (SMC)`
+- `Iterative LQR (iLQR)`
+- `Model Predictive Control (MPC)`
+
+The benchmark supports two estimator modes:
+
+- `none`
+- `ekf`
+
+Each saved run records explicit diagnostics, including:
+
+- success / failure status
+- first balance entry time
+- balance fraction
+- track violation state
+- failure reason
+- controller debug payloads where applicable
+
+## Controllers and Estimator Support
+
+The project now reflects the full five-controller benchmark state:
+
+- `LQR`, `PFL`, and `SMC` provide the fast classical baselines
+- `iLQR` and `MPC` provide optimization-based stabilizers under the same hybrid switching logic
+- `EKF` support is available as a first-class estimator path in both suites and rendering
+
+The recommended final showcase path is:
+
+- run `nominal + stress` for all five controllers
+- run Monte Carlo for `LQR/PFL/SMC`
+- render from the same artifact root
+
+That split keeps the final artifact representative while avoiding unnecessary optimizer-heavy Monte Carlo runtime.
 
 ## Benchmark Suite
 
-### Nominal scenarios
+### Nominal
 
 - `local_small_angle`
 - `full_task_hanging`
 
-### Stress scenarios
+### Stress
 
 - `measurement_noise`
 - `impulse_disturbance`
@@ -102,85 +86,29 @@ Each run stores explicit handoff and failure diagnostics, including:
 
 ### Monte Carlo
 
-The repository also includes a Monte Carlo benchmark that samples:
+The Monte Carlo benchmark samples randomized conditions over:
 
 - initial angle and angular rate
 - disturbance settings
 - friction and damping
-- plant mismatch
+- parameter mismatch
+- estimator/controller combinations selected at the CLI
 
-## Results at a Glance
+## Current Benchmark Snapshot
 
-- All repeated-seed nominal scenarios succeeded for `LQR`, `PFL`, and `SMC`.
-- All repeated-seed stress scenarios succeeded for `LQR`, `PFL`, and `SMC`.
-- Monte Carlo success rates on the saved benchmark are:
-  - `LQR = 0.817`
-  - `PFL = 0.783`
-  - `SMC = 0.735`
-- `LQR` is the fastest baseline after handoff.
-- `PFL` and `SMC` are slower, but remain reliable across the evaluated suites.
+The current public-facing snapshot is based on the final merged `ekf` benchmark artifact used to curate the visuals in `docs/media/`.
 
-## Visual Results
+Current saved results:
 
-### Local stabilization
+- Under `ekf`, all five controllers succeeded on the saved repeated-seed `nominal` and `stress` suites.
+- Monte Carlo in the final showcase artifact is intentionally limited to the fast classical controllers:
+  - `LQR = 0.81`
+  - `PFL = 0.77`
+  - `SMC = 0.71`
+  - `samples = 300`
+- `iLQR` and `MPC` are functionally healthy in `nominal + stress`, but Monte Carlo for them is intentionally omitted from the final showcase because of runtime cost.
 
-![Nominal local response](docs/media/nominal_local_response.png)
-
-Near-upright recovery under the three stabilizers, shown as angle, cart motion, input force, and local phase behavior.
-
-### Full task from hanging
-
-![Full-task handoff](docs/media/full_task_handoff.png)
-
-Shared swing-up and capture followed by controller-specific balance behavior. The figure emphasizes the handoff interval and the post-capture settling response.
-
-### Stress suite summary
-
-![Stress comparison](docs/media/stress_comparison.png)
-
-Stress-case matrix summarizing repeated-seed outcomes across disturbance, damping, mismatch, and recovery scenarios.
-
-### Nominal metric summary
-
-![Nominal metrics](docs/media/metric_summary.png)
-
-Compact comparison of settling time, overshoot, steady-state error, and control effort for the nominal suite.
-
-### Monte Carlo overview
-
-![Monte Carlo overview](docs/media/monte_carlo_overview.png)
-
-Monte Carlo summary showing success rate, settling-time distribution, and steady-state error distribution.
-
-### Handoff detail
-
-![Handoff focus](docs/media/handoff_focus.png)
-
-Focused view of the balance-entry region, useful for understanding how each controller behaves immediately after capture.
-
-### Single-controller motion example
-
-![LQR full task nominal](docs/media/lqr_full_task_nominal.gif)
-
-Representative full-task run for `LQR`, rendered with the same white paper-style layout used throughout the project.
-
-### Additional comparison view
-
-![Stress comparison animation](docs/media/side_by_side_stress_comparison.gif)
-
-Synchronized stress-case comparison for the three stabilizers.
-
-## Repository Layout
-
-```text
-configs/                JSON configs for plant, controllers, experiments, and rendering
-src/cartpole_bench/     Installable package
-tests/                  Unit and smoke tests
-docs/media/             Curated showcase assets used by this README
-artifacts*/             Generated tables, figures, and animations
-```
-
-## How to Reproduce
+## Quick Start
 
 Create and activate a virtual environment:
 
@@ -195,63 +123,87 @@ Install the package:
 pip install -e .[dev]
 ```
 
-Run the full benchmark:
+Run the test suite:
 
 ```bash
-cartpole-bench all --device auto --samples 1000 --formats gif --theme paper_white --duration-profile extended_gif --output artifacts
+pytest
 ```
 
-Run only the nominal suite:
+## Reproduction Commands
+
+Run the nominal suite for all five controllers:
 
 ```bash
-cartpole-bench run-suite --suite nominal --output artifacts
+cartpole-bench run-suite --suite nominal --controllers lqr,pfl,smc,ilqr,mpc --estimator ekf --output artifacts
 ```
 
-Run only Monte Carlo:
+Run the stress suite for all five controllers:
 
 ```bash
-cartpole-bench monte-carlo --device auto --samples 1000 --output artifacts
+cartpole-bench run-suite --suite stress --controllers lqr,pfl,smc,ilqr,mpc --estimator ekf --output artifacts
+```
+
+Run the time-balanced Monte Carlo pass:
+
+```bash
+cartpole-bench monte-carlo --controllers lqr,pfl,smc --estimator ekf --samples 300 --output artifacts
 ```
 
 Render figures and animations from previously saved artifacts:
 
 ```bash
-cartpole-bench render --formats gif --theme paper_white --duration-profile extended_gif --output artifacts
+cartpole-bench render --controllers lqr,pfl,smc,ilqr,mpc --estimator ekf --formats gif,mp4 --output artifacts
 ```
 
-Skip supplemental outputs if you only want the five primary figures and five primary GIFs:
+Run the helper pipeline that matches the recommended final showcase flow:
 
 ```bash
-cartpole-bench render --no-supplements --output artifacts
+bash scripts/run_balanced_pipeline.sh
 ```
 
-## Artifacts
+`cartpole-bench all` still exists as a simulation-only convenience command, but it is not the recommended final showcase path because it applies one controller list across both suites and Monte Carlo.
 
-The benchmark writes:
+## Visual Highlights
 
-- per-run trajectory CSV files
-- per-run JSON metadata
-- aggregate metric tables in CSV, JSON, and Markdown
-- primary PNG figures
-- primary GIF animations
-- supplemental handoff-focused visuals
+![Nominal local response](docs/media/nominal_local_response.png)
 
-The main aggregate outputs are:
+Near-upright recovery view showing angle, cart motion, force, and phase behavior across the five stabilizers.
 
-- `metric_summary.csv`
-- `metric_summary.json`
-- `metric_summary.md`
-- `monte_carlo_summary.csv`
-- `monte_carlo_summary.json`
+![Full-task handoff](docs/media/full_task_handoff.png)
 
-## Limitations
+Shared swing-up and capture pipeline with aligned balance entry behavior across all five methods.
 
-- Full-task control effort is heavily influenced by the shared swing-up and capture stage.
-- That makes total effort less useful for separating stabilizer behavior than settling time or steady-state error.
-- The benchmark is engineering-focused rather than a formal research benchmark.
+![Stress comparison](docs/media/stress_comparison.png)
 
-## Notes for Publishing
+Repeated-seed stress summary across measurement noise, disturbance, damping, large-angle recovery, and parameter mismatch.
 
-- The README uses tracked showcase assets from `docs/media/`, not from volatile artifact roots.
-- Generated artifact directories such as `artifacts_v*/` should stay ignored.
-- Before pushing, confirm that only curated media and source files are staged.
+![Metric summary](docs/media/metric_summary.png)
+
+Compact publication-style summary of settling time, overshoot, steady-state error, and control effort.
+
+![Handoff focus](docs/media/handoff_focus.png)
+
+Focused view around the balance-entry window, useful for comparing post-capture behavior.
+
+## Repository Layout
+
+```text
+configs/                JSON configs for controllers, estimators, experiments, and rendering
+docs/media/             Curated README showcase assets
+scripts/                Helper scripts for reruns and artifact merging
+src/cartpole_bench/     Installable package and CLI
+tests/                  Unit, regression, and smoke tests
+```
+
+Generated `artifacts*/` directories are local outputs and are intentionally not part of the tracked GitHub-facing repository contents.
+
+## Limitations and Honesty Notes
+
+- The benchmark is engineering-focused and optimized for reproducible comparison, not for formal scientific claims.
+- Total control effort in the full task still includes the shared swing-up and capture phases, so it is not a pure stabilizer-only metric.
+- `iLQR` and `MPC` are currently strongest in the saved suite benchmarks, but they remain much more expensive computationally than the classical baselines.
+- The final public visuals intentionally suppress partial comparison figures. If a comparison output does not cover the selected controller set, it is skipped and removed.
+
+## License
+
+This project is released under the [MIT License](LICENSE).

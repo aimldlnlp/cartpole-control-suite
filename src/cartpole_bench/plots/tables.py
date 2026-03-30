@@ -16,12 +16,18 @@ def refresh_metric_tables(base_dir: Path) -> None:
         results.append(
             TrajectoryResult(
                 controller_name=metadata["controller_name"],
+                estimator_name=metadata.get("estimator_name", "none"),
                 scenario_name=metadata["scenario_name"],
                 suite_name=metadata["suite_name"],
                 seed=int(metadata["seed"]),
                 time=frame["t"].to_numpy(),
                 states=frame[["x", "x_dot", "theta", "theta_dot"]].to_numpy(),
-                observations=frame[["x", "x_dot", "theta", "theta_dot"]].to_numpy(),
+                observations=frame[["x_obs", "x_dot_obs", "theta_obs", "theta_dot_obs"]].to_numpy()
+                if {"x_obs", "x_dot_obs", "theta_obs", "theta_dot_obs"}.issubset(frame.columns)
+                else frame[["x", "x_dot", "theta", "theta_dot"]].to_numpy(),
+                estimates=frame[["x_est", "x_dot_est", "theta_est", "theta_dot_est"]].to_numpy()
+                if {"x_est", "x_dot_est", "theta_est", "theta_dot_est"}.issubset(frame.columns)
+                else frame[["x", "x_dot", "theta", "theta_dot"]].to_numpy(),
                 controls=frame["u"].to_numpy(),
                 disturbances=frame["disturbance"].to_numpy() if "disturbance" in frame else frame["u"].to_numpy() * 0.0,
                 modes=frame["mode"].astype(str).tolist(),

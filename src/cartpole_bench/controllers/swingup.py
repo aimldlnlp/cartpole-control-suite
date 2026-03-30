@@ -58,7 +58,7 @@ class EnergySwingUpController(BaseController):
         threshold = self.config.gains.get("recenter_position_threshold_ratio", 0.68) * track_limit
         return abs(x) >= threshold
 
-    def compute_capture_control(self, t: float, state: np.ndarray) -> float:
+    def compute_capture_control(self, t: float, state: np.ndarray, dt: float | None = None) -> float:
         gains = self.config.gains
         x, x_dot, theta, theta_dot = np.asarray(state, dtype=float)
         if self._needs_recenter(x):
@@ -75,7 +75,7 @@ class EnergySwingUpController(BaseController):
             - gains["capture_x_gain"] * (x - cart_target)
             - gains["capture_x_dot_gain"] * x_dot
         )
-        lqr_assist = self.capture_lqr.compute_control(t, np.asarray([x, x_dot, theta, theta_dot], dtype=float))
+        lqr_assist = self.capture_lqr.compute_control(t, np.asarray([x, x_dot, theta, theta_dot], dtype=float), dt)
         lqr_full_angle = np.deg2rad(gains.get("capture_lqr_full_angle_deg", 20.0))
         blend_angle = np.deg2rad(gains.get("capture_blend_angle_deg", 35.0))
         if abs(theta) <= lqr_full_angle:
@@ -87,7 +87,7 @@ class EnergySwingUpController(BaseController):
         control = (1.0 - blend) * capture_pd + blend * lqr_assist + rail_term
         return self.saturate(float(control))
 
-    def compute_control(self, t: float, state: np.ndarray) -> float:
+    def compute_control(self, t: float, state: np.ndarray, dt: float | None = None) -> float:
         gains = self.config.gains
         x, x_dot, theta, theta_dot = np.asarray(state, dtype=float)
         if self._needs_recenter(x):

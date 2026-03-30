@@ -1,0 +1,14 @@
+{
+  "Q": [70.0, 14.0, 170.0, 20.0],
+  "Qf": [110.0, 24.0, 260.0, 32.0],
+  "R": 0.35,
+  "du_weight": 0.05,
+  "horizon_steps": 40,
+  "solver_maxiter": 40,
+  "solver_ftol": 1e-05,
+  "soft_track_weight": 260.0,
+  "soft_track_limit_ratio": 0.55,
+  "soft_angle_weight": 170.0,
+  "soft_angle_limit_deg": 10.0,
+  "force_limit": 15.0
+}

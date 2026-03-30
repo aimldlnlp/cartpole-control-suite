@@ -26,7 +26,7 @@ def test_render_output_names_do_not_use_numeric_fig_anim_prefixes() -> None:
 def test_cli_defaults_to_artifacts_v2_output_root() -> None:
     parser = build_parser()
     args = parser.parse_args(["run-suite", "--suite", "nominal"])
-    assert args.output == "artifacts_v2"
+    assert args.output == "artifacts_v3"
 
 
 def test_cli_render_defaults_use_gif_first_muted_theme() -> None:
@@ -35,10 +35,38 @@ def test_cli_render_defaults_use_gif_first_muted_theme() -> None:
     assert args.formats == "gif"
     assert args.theme == "paper_white"
     assert args.duration_profile == "extended_gif"
+    assert args.estimator == "none"
+    assert "ilqr" in args.controllers
     assert args.no_supplements is False
+    assert args.quiet is False
+
+
+def test_cli_render_split_commands_exist() -> None:
+    parser = build_parser()
+    fig_args = parser.parse_args(["render-figures", "--quiet"])
+    anim_args = parser.parse_args(["render-animations", "--quiet"])
+    assert fig_args.command == "render-figures"
+    assert anim_args.command == "render-animations"
+    assert fig_args.quiet is True
+    assert anim_args.quiet is True
+
+
+def test_render_output_names_include_new_controller_stems() -> None:
+    assert ANIMATION_STEMS["Iterative LQR (iLQR)"] == "ilqr_full_task_nominal"
+    assert ANIMATION_STEMS["Model Predictive Control (MPC)"] == "mpc_full_task_nominal"
 
 
 def test_cli_can_disable_supplemental_outputs() -> None:
     parser = build_parser()
     args = parser.parse_args(["render", "--no-supplements"])
     assert args.no_supplements is True
+
+
+def test_cli_all_is_simulation_only() -> None:
+    parser = build_parser()
+    args = parser.parse_args(["all", "--quiet"])
+    assert args.command == "all"
+    assert args.quiet is True
+    assert not hasattr(args, "formats")
+    assert not hasattr(args, "theme")
+    assert not hasattr(args, "duration_profile")

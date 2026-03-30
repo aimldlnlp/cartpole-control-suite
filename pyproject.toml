@@ -8,6 +8,17 @@ version = "0.1.0"
 description = "Portfolio-grade nonlinear cart-pole control benchmark"
 readme = "README.md"
 requires-python = ">=3.10"
+license = {file = "LICENSE"}
+keywords = ["cartpole", "control", "nonlinear-control", "benchmark", "lqr", "mpc", "ilqr"]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 dependencies = [
   "matplotlib>=3.8",
   "numpy>=1.26",
@@ -35,3 +46,7 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+addopts = "-m 'not slow'"
+markers = [
+  "slow: long-running regression and integration checks excluded from default pytest runs",
+]
