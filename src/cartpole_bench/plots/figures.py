@@ -3,7 +3,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 import numpy as np
 import pandas as pd
 from matplotlib.colors import LinearSegmentedColormap, ListedColormap
@@ -43,7 +42,6 @@ FIGURE_FILENAMES = {
     "monte_carlo_overview": "monte_carlo_overview.png",
 }
 SUPPLEMENTAL_FIGURE_FILENAMES = {
-    "cartpole_schematic": "cartpole_schematic.png",
     "handoff_focus": "handoff_focus.png",
     "constraint_usage": "constraint_usage.png",
     "robustness_map": "robustness_map.png",
@@ -177,17 +175,32 @@ def _mode_alignment(runs: list[dict], before: float, after: float) -> tuple[np.n
     return grid, {mode: np.mean(rows, axis=0) if rows else np.zeros(len(grid), dtype=float) for mode, rows in counts.items()}
 
 
-def _shared_legend(fig, theme_cfg, controllers: list[str], *, loc: str = "upper right", x: float = 0.985, y: float = 0.985) -> None:
+def _shared_legend(
+    fig,
+    theme_cfg,
+    controllers: list[str],
+    *,
+    loc: str = "upper right",
+    x: float = 0.985,
+    y: float = 0.985,
+    ncol: int | None = None,
+    fontsize: float = 7.8,
+    handlelength: float = 1.7,
+    columnspacing: float = 0.8,
+    handletextpad: float = 0.5,
+) -> None:
     handles = [Line2D([0], [0], color=controller_color(theme_cfg, controller), linewidth=1.9) for controller in controllers]
     fig.legend(
         handles,
         [_short_label(controller) for controller in controllers],
         loc=loc,
         bbox_to_anchor=(x, y),
-        fontsize=8.0,
-        ncol=max(1, len(handles)),
-        handlelength=1.8,
-        columnspacing=0.9,
+        fontsize=fontsize,
+        ncol=ncol or max(1, len(handles)),
+        handlelength=handlelength,
+        columnspacing=columnspacing,
+        handletextpad=handletextpad,
+        frameon=False,
     )
 
 
@@ -241,13 +254,15 @@ def _draw_metric_heatmap(
     display: pd.DataFrame,
     theme_cfg,
     *,
-    title: str,
+    title: str | None,
     subtitle: str | None = None,
     x_rotation: float = 0.0,
     value_fontsize: float = 7.1,
+    title_pad: float = 4.5,
+    subtitle_y: float = 1.005,
 ) -> None:
     style_axis(ax, theme_cfg)
-    add_panel_title(ax, title, subtitle=subtitle, theme_cfg=theme_cfg)
+    add_panel_title(ax, title, subtitle=subtitle, theme_cfg=theme_cfg, title_pad=title_pad, subtitle_y=subtitle_y)
     if normalized.empty:
         ax.text(0.5, 0.5, "no data", ha="center", va="center", fontsize=8.0, color=theme_cfg.muted_color)
         ax.set_xticks([])
@@ -426,7 +441,6 @@ def _figure_output_paths(base_dir: Path) -> dict[str, Path]:
         "stress_comparison": figures_dir / FIGURE_FILENAMES["stress_comparison"],
         "metric_summary": figures_dir / FIGURE_FILENAMES["metric_summary"],
         "monte_carlo_overview": figures_dir / FIGURE_FILENAMES["monte_carlo_overview"],
-        "cartpole_schematic": supplemental_dir / SUPPLEMENTAL_FIGURE_FILENAMES["cartpole_schematic"],
         "handoff_focus": supplemental_dir / SUPPLEMENTAL_FIGURE_FILENAMES["handoff_focus"],
         "constraint_usage": supplemental_dir / SUPPLEMENTAL_FIGURE_FILENAMES["constraint_usage"],
         "robustness_map": supplemental_dir / SUPPLEMENTAL_FIGURE_FILENAMES["robustness_map"],
@@ -459,7 +473,6 @@ def _eligible_figure_keys(
         eligible.append("monte_carlo_overview")
 
     if include_supplements:
-        eligible.append("cartpole_schematic")
         if _aligned_samples_exist_for_all_labels(
             runs,
             "full_task_hanging",
@@ -539,7 +552,6 @@ def generate_figures(
         "stress_comparison": lambda: _figure_stress_comparison(runs, figures_dir, theme_cfg, base_dir),
         "metric_summary": lambda: _figure_metric_summary(runs, figures_dir, theme_cfg, base_dir),
         "monte_carlo_overview": lambda: _figure_monte_carlo_overview(figures_dir, theme_cfg, base_dir, controllers, estimator_name),
-        "cartpole_schematic": lambda: _figure_cartpole_schematic(supplemental_dir, theme_cfg),
         "handoff_focus": lambda: _figure_handoff_focus(runs, supplemental_dir, theme_cfg),
         "constraint_usage": lambda: _figure_constraint_usage(runs, supplemental_dir, theme_cfg),
         "robustness_map": lambda: _figure_robustness_map(supplemental_dir, theme_cfg, base_dir, controllers, estimator_name),
@@ -582,9 +594,9 @@ def _figure_nominal_local_response(runs: list[dict], figures_dir: Path, theme_cf
     scenario_runs = [run for run in runs if run["metadata"]["scenario_name"] == "local_small_angle"]
     controllers = [controller for controller in CONTROLLER_ORDER if any(run["metadata"]["controller_name"] == controller for run in scenario_runs)]
 
-    fig = plt.figure(figsize=(12.2, 6.6))
+    fig = plt.figure(figsize=(12.4, 6.8))
     gs = fig.add_gridspec(2, 3, width_ratios=[1.15, 1.15, 0.92], height_ratios=[1.0, 1.0])
-    fig.subplots_adjust(left=0.07, right=0.985, top=0.91, bottom=0.11, wspace=0.18, hspace=0.22)
+    fig.subplots_adjust(left=0.07, right=0.985, top=0.84, bottom=0.11, wspace=0.18, hspace=0.24)
     ax_angle = fig.add_subplot(gs[0, 0])
     ax_cart = fig.add_subplot(gs[0, 1], sharex=ax_angle)
     ax_force = fig.add_subplot(gs[1, 0], sharex=ax_angle)
@@ -633,10 +645,10 @@ def _figure_nominal_local_response(runs: list[dict], figures_dir: Path, theme_cf
             }
         )
 
-    add_panel_title(ax_angle, "Angle", subtitle="median plus seed cloud", theme_cfg=theme_cfg)
-    add_panel_title(ax_cart, "Cart", subtitle="median plus seed cloud", theme_cfg=theme_cfg)
-    add_panel_title(ax_force, "Force", subtitle="median plus seed cloud", theme_cfg=theme_cfg)
-    add_panel_title(ax_phase, "Phase", subtitle="median trajectory", theme_cfg=theme_cfg)
+    add_panel_title(ax_angle, "Angle", theme_cfg=theme_cfg, title_pad=7.0)
+    add_panel_title(ax_cart, "Cart", theme_cfg=theme_cfg, title_pad=7.0)
+    add_panel_title(ax_force, "Force", theme_cfg=theme_cfg, title_pad=7.0)
+    add_panel_title(ax_phase, "Phase", theme_cfg=theme_cfg, title_pad=7.0)
     ax_angle.set_ylabel("Angle [deg]")
     ax_cart.set_ylabel("Position [m]")
     ax_force.set_ylabel("Force [N]")
@@ -661,11 +673,12 @@ def _figure_nominal_local_response(runs: list[dict], figures_dir: Path, theme_cf
         display,
         theme_cfg,
         title="Profile",
-        subtitle="seed medians",
         value_fontsize=7.0,
+        title_pad=8.0,
     )
-    _shared_legend(fig, theme_cfg, controllers)
-    fig.suptitle("Nominal Local Response", x=0.07, y=0.975, ha="left", fontsize=11.5, color=theme_cfg.text_color)
+    _shared_legend(fig, theme_cfg, controllers, x=0.985, y=0.984, fontsize=7.4, handlelength=1.6, columnspacing=0.72)
+    fig.suptitle("Nominal Local Response", x=0.07, y=0.982, ha="left", fontsize=11.5, color=theme_cfg.text_color)
+    fig.text(0.07, 0.945, "Seed-cloud medians", ha="left", va="top", fontsize=7.2, color=theme_cfg.muted_color)
     path = figures_dir / FIGURE_FILENAMES["nominal_local_response"]
     save_figure(fig, path, theme_cfg)
     return path
@@ -675,14 +688,14 @@ def _figure_full_task_handoff(runs: list[dict], figures_dir: Path, theme_cfg) ->
     scenario_runs = [run for run in runs if run["metadata"]["scenario_name"] == "full_task_hanging"]
     controllers = [controller for controller in CONTROLLER_ORDER if any(run["metadata"]["controller_name"] == controller for run in scenario_runs)]
 
-    fig = plt.figure(figsize=(12.4, 7.0))
+    fig = plt.figure(figsize=(12.6, 7.1))
     gs = fig.add_gridspec(4, 2, width_ratios=[4.2, 1.45], height_ratios=[2.0, 1.25, 1.25, 0.75])
     ax_angle = fig.add_subplot(gs[0, 0])
     ax_cart = fig.add_subplot(gs[1, 0], sharex=ax_angle)
     ax_force = fig.add_subplot(gs[2, 0], sharex=ax_angle)
     ax_mode = fig.add_subplot(gs[3, 0], sharex=ax_angle)
     ax_profile = fig.add_subplot(gs[:, 1])
-    fig.subplots_adjust(left=0.075, right=0.985, top=0.90, bottom=0.12, hspace=0.22, wspace=0.18)
+    fig.subplots_adjust(left=0.075, right=0.985, top=0.84, bottom=0.12, hspace=0.24, wspace=0.18)
     for ax in (ax_angle, ax_cart, ax_force):
         style_axis(ax, theme_cfg)
         add_event_band(ax, -0.15, 0.15, theme_cfg, alpha=0.07)
@@ -730,9 +743,9 @@ def _figure_full_task_handoff(runs: list[dict], figures_dir: Path, theme_cfg) ->
             }
         )
 
-    add_panel_title(ax_angle, "Angle", subtitle="aligned to balance entry", theme_cfg=theme_cfg)
-    add_panel_title(ax_cart, "Cart", subtitle="aligned to balance entry", theme_cfg=theme_cfg)
-    add_panel_title(ax_force, "Force", subtitle="aligned to balance entry", theme_cfg=theme_cfg)
+    add_panel_title(ax_angle, "Angle", theme_cfg=theme_cfg, title_pad=7.0)
+    add_panel_title(ax_cart, "Cart", theme_cfg=theme_cfg, title_pad=7.0)
+    add_panel_title(ax_force, "Force", theme_cfg=theme_cfg, title_pad=7.0)
     ax_angle.set_ylabel("Angle [deg]")
     ax_cart.set_ylabel("Cart [m]")
     ax_force.set_ylabel("Force [N]")
@@ -776,11 +789,12 @@ def _figure_full_task_handoff(runs: list[dict], figures_dir: Path, theme_cfg) ->
         display,
         theme_cfg,
         title="Profile",
-        subtitle="full task medians",
         value_fontsize=6.9,
+        title_pad=8.0,
     )
-    _shared_legend(fig, theme_cfg, controllers)
-    fig.suptitle("Full-Task Handoff", x=0.075, y=0.975, ha="left", fontsize=11.5, color=theme_cfg.text_color)
+    _shared_legend(fig, theme_cfg, controllers, x=0.985, y=0.984, fontsize=7.4, handlelength=1.6, columnspacing=0.72)
+    fig.suptitle("Full-Task Handoff", x=0.075, y=0.982, ha="left", fontsize=11.5, color=theme_cfg.text_color)
+    fig.text(0.075, 0.945, "Aligned to balance entry", ha="left", va="top", fontsize=7.2, color=theme_cfg.muted_color)
     path = figures_dir / FIGURE_FILENAMES["full_task_handoff"]
     save_figure(fig, path, theme_cfg)
     return path
@@ -818,8 +832,8 @@ def _figure_stress_comparison(runs: list[dict], figures_dir: Path, theme_cfg, ba
                 dominant = max(set(reasons), key=reasons.count)
                 failure_index[row_index, col_index] = FAILURE_ORDER.index(dominant) if dominant in FAILURE_ORDER else FAILURE_ORDER.index("unknown_failure")
 
-    fig, axes = plt.subplots(1, 3, figsize=(13.0, 4.8))
-    fig.subplots_adjust(left=0.065, right=0.99, top=0.85, bottom=0.20, wspace=0.14)
+    fig, axes = plt.subplots(1, 3, figsize=(13.2, 4.9))
+    fig.subplots_adjust(left=0.065, right=0.99, top=0.79, bottom=0.23, wspace=0.14)
     if controllers and scenarios:
         row_labels = [_short_label(controller) for controller in controllers]
         col_labels = [_scenario_label(scenario) for scenario in scenarios]
@@ -831,9 +845,9 @@ def _figure_stress_comparison(runs: list[dict], figures_dir: Path, theme_cfg, ba
             success_display,
             theme_cfg,
             title="Success",
-            subtitle="stress seeds",
-            x_rotation=18,
+            x_rotation=12,
             value_fontsize=7.0,
+            title_pad=7.0,
         )
 
         settling_frame = pd.DataFrame(settling, index=row_labels, columns=col_labels)
@@ -852,9 +866,9 @@ def _figure_stress_comparison(runs: list[dict], figures_dir: Path, theme_cfg, ba
             settling_display,
             theme_cfg,
             title="Settle",
-            subtitle="median seconds",
-            x_rotation=18,
+            x_rotation=12,
             value_fontsize=6.9,
+            title_pad=7.0,
         )
 
         failure_frame = pd.DataFrame(
@@ -876,11 +890,14 @@ def _figure_stress_comparison(runs: list[dict], figures_dir: Path, theme_cfg, ba
             failure_frame,
             theme_cfg,
             title="Failure",
-            subtitle="dominant label",
-            x_rotation=18,
+            x_rotation=12,
             value_fontsize=6.8,
+            title_pad=7.0,
         )
-    fig.suptitle("Stress Comparison", x=0.065, y=0.965, ha="left", fontsize=11.5, color=theme_cfg.text_color)
+        for ax in axes:
+            ax.tick_params(axis="x", labelsize=7.4)
+    fig.suptitle("Stress Comparison", x=0.065, y=0.982, ha="left", fontsize=11.5, color=theme_cfg.text_color)
+    fig.text(0.065, 0.942, "Success, settle median, and dominant failure", ha="left", va="top", fontsize=7.2, color=theme_cfg.muted_color)
     path = figures_dir / FIGURE_FILENAMES["stress_comparison"]
     save_figure(fig, path, theme_cfg)
     return path
@@ -906,8 +923,8 @@ def _figure_metric_summary(runs: list[dict], figures_dir: Path, theme_cfg, base_
             }
         )
 
-    fig, ax = plt.subplots(figsize=(11.6, 4.5))
-    fig.subplots_adjust(left=0.09, right=0.985, top=0.84, bottom=0.18)
+    fig, ax = plt.subplots(figsize=(11.8, 4.6))
+    fig.subplots_adjust(left=0.09, right=0.985, top=0.77, bottom=0.18)
     normalized, display = _build_profile_tables(
         pd.DataFrame(profile_rows),
         [
@@ -924,11 +941,11 @@ def _figure_metric_summary(runs: list[dict], figures_dir: Path, theme_cfg, base_
         normalized,
         display,
         theme_cfg,
-        title="Controller Profile",
-        subtitle="aggregated across nominal and stress tables",
+        title=None,
         value_fontsize=7.0,
     )
-    fig.suptitle("Metric Summary", x=0.09, y=0.965, ha="left", fontsize=11.5, color=theme_cfg.text_color)
+    fig.suptitle("Metric Summary", x=0.09, y=0.982, ha="left", fontsize=11.5, color=theme_cfg.text_color)
+    fig.text(0.09, 0.942, "Aggregated nominal + stress medians", ha="left", va="top", fontsize=7.2, color=theme_cfg.muted_color)
     path = figures_dir / FIGURE_FILENAMES["metric_summary"]
     save_figure(fig, path, theme_cfg)
     return path
@@ -1004,32 +1021,6 @@ def _figure_monte_carlo_overview(
 
     fig.suptitle("Monte Carlo Overview", x=0.07, y=0.975, ha="left", fontsize=12.2, color=theme_cfg.text_color)
     path = figures_dir / FIGURE_FILENAMES["monte_carlo_overview"]
-    save_figure(fig, path, theme_cfg)
-    return path
-
-
-def _figure_cartpole_schematic(figures_dir: Path, theme_cfg) -> Path:
-    fig, ax = plt.subplots(figsize=(7.8, 4.4))
-    fig.subplots_adjust(left=0.04, right=0.99, top=0.93, bottom=0.08)
-    ax.set_facecolor(theme_cfg.panel_color)
-    ax.set_xlim(-2.1, 2.3)
-    ax.set_ylim(-0.55, 2.35)
-    ax.set_xticks([])
-    ax.set_yticks([])
-    for spine in ax.spines.values():
-        spine.set_visible(False)
-    ax.plot([-1.9, 1.9], [0.0, 0.0], color=theme_cfg.text_color, linewidth=1.0, alpha=0.72)
-    cart = patches.Rectangle((-0.4, 0.08), 0.8, 0.26, linewidth=1.2, edgecolor=theme_cfg.text_color, facecolor=soften(theme_cfg.accent_color, 0.82))
-    ax.add_patch(cart)
-    theta = np.deg2rad(18.0)
-    pivot = (0.0, 0.34)
-    bob = (np.sin(theta) * 1.25, 0.34 + np.cos(theta) * 1.25)
-    ax.plot([pivot[0], bob[0]], [pivot[1], bob[1]], color=controller_color(theme_cfg, "LQR"), linewidth=2.0)
-    ax.add_patch(patches.Circle(bob, 0.07, edgecolor=controller_color(theme_cfg, "LQR"), facecolor=theme_cfg.panel_color, linewidth=1.3))
-    ax.text(-1.88, 1.95, r"State: $[x,\ \dot{x},\ \theta,\ \dot{\theta}]$", fontsize=9, color=theme_cfg.text_color)
-    ax.text(-1.88, 1.70, "Hybrid stages: energy pump -> capture assist -> balance", fontsize=8.2, color=theme_cfg.muted_color)
-    fig.suptitle("Cart-Pole Schematic", x=0.06, y=0.97, ha="left", fontsize=12.2, color=theme_cfg.text_color)
-    path = figures_dir / SUPPLEMENTAL_FIGURE_FILENAMES["cartpole_schematic"]
     save_figure(fig, path, theme_cfg)
     return path
 

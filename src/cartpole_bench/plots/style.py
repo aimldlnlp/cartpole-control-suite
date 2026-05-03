@@ -81,19 +81,30 @@ def style_axis(ax, theme_cfg: RenderThemeConfig) -> None:
     ax.tick_params(labelsize=8.5, width=0.8)
 
 
-def add_panel_title(ax, title: str, subtitle: str | None = None, theme_cfg: RenderThemeConfig | None = None) -> None:
+def add_panel_title(
+    ax,
+    title: str | None,
+    subtitle: str | None = None,
+    theme_cfg: RenderThemeConfig | None = None,
+    *,
+    title_fontsize: float = 8.8,
+    title_pad: float = 4.5,
+    subtitle_fontsize: float = 7.2,
+    subtitle_y: float = 1.005,
+) -> None:
     if theme_cfg is None:
         raise ValueError("theme_cfg is required")
-    ax.set_title(title, fontsize=8.8, fontweight="normal", color=theme_cfg.text_color, pad=4.5)
+    if title:
+        ax.set_title(title, fontsize=title_fontsize, fontweight="normal", color=theme_cfg.text_color, pad=title_pad)
     if subtitle:
         ax.text(
             0.0,
-            1.005,
+            subtitle_y,
             subtitle,
             transform=ax.transAxes,
             ha="left",
             va="bottom",
-            fontsize=7.2,
+            fontsize=subtitle_fontsize,
             color=theme_cfg.muted_color,
         )
 
@@ -146,7 +157,16 @@ def plot_percentile_band(
     ax.plot(x, median, color=color, linewidth=median_width, label=label)
 
 
-def controller_badge(ax, text: str, color: str, theme_cfg: RenderThemeConfig, *, y: float = 0.965) -> None:
+def controller_badge(
+    ax,
+    text: str,
+    color: str,
+    theme_cfg: RenderThemeConfig,
+    *,
+    y: float = 0.935,
+    fontsize: float = 7.5,
+    pad: float = 0.18,
+) -> None:
     ax.text(
         0.03,
         y,
@@ -154,10 +174,10 @@ def controller_badge(ax, text: str, color: str, theme_cfg: RenderThemeConfig, *,
         transform=ax.transAxes,
         ha="left",
         va="top",
-        fontsize=8.0,
+        fontsize=fontsize,
         color=color,
         bbox={
-            "boxstyle": "round,pad=0.22",
+            "boxstyle": f"round,pad={pad}",
             "facecolor": soften(color, 0.85),
             "edgecolor": color,
         },

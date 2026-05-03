@@ -5,6 +5,7 @@ from pathlib import Path
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.lines import Line2D
 
 from cartpole_bench.animations.artist import CartPoleArtist
 from cartpole_bench.config import load_video_config
@@ -520,12 +521,12 @@ def _render_comparison(
 ) -> Path:
     fig = plt.figure(figsize=video_cfg.canvas_size_comparison)
     gs = fig.add_gridspec(3, 3, height_ratios=[1.0, 1.0, 0.95])
-    fig.subplots_adjust(left=0.035, right=0.99, top=0.93, bottom=0.08, wspace=0.05, hspace=0.15)
+    fig.subplots_adjust(left=0.04, right=0.99, top=0.84, bottom=0.08, wspace=0.05, hspace=0.18)
 
     top_axes = [fig.add_subplot(gs[row, col]) for row in range(2) for col in range(3)]
     ax_trace = fig.add_subplot(gs[2, :])
     style_axis(ax_trace, theme_cfg)
-    add_panel_title(ax_trace, "Angle trace", theme_cfg=theme_cfg)
+    add_panel_title(ax_trace, "Angle trace", theme_cfg=theme_cfg, title_pad=6.5)
     ax_trace.set_xlabel("Time [s]")
     ax_trace.set_ylabel("deg")
 
@@ -534,7 +535,6 @@ def _render_comparison(
     trace_points = []
     legend_handles = []
     legend_labels = []
-    status_ax = None
     max_len = max(len(run["frame"]) for run in selected)
 
     for index, ax in enumerate(top_axes):
@@ -552,7 +552,7 @@ def _render_comparison(
                 panel_color=theme_cfg.panel_color,
                 background_color=theme_cfg.background_color,
             )
-            controller_badge(ax, _short_label(controller), color, theme_cfg)
+            controller_badge(ax, _short_label(controller), color, theme_cfg, y=0.90, fontsize=7.2, pad=0.16)
             artists.append((artist, run))
             frame = run["frame"]
             time = frame["t"].to_numpy(dtype=float)
@@ -562,20 +562,15 @@ def _render_comparison(
             point, = ax_trace.plot([], [], "o", color=color, markersize=2.8)
             trace_lines.append((line, run))
             trace_points.append((point, run))
-            legend_handles.append(base_line)
+            legend_handles.append(Line2D([0], [0], color=color, linewidth=1.6))
             legend_labels.append(_short_label(controller))
         else:
-            status_ax = ax
             ax.set_facecolor(theme_cfg.panel_color)
             ax.set_xticks([])
             ax.set_yticks([])
             for spine in ax.spines.values():
                 spine.set_visible(False)
-            ax.text(0.05, 0.90, title, transform=ax.transAxes, fontsize=10.0, color=theme_cfg.text_color, ha="left")
-            ax.text(0.05, 0.72, "shared cursor tracks the current frame", transform=ax.transAxes, fontsize=7.6, color=theme_cfg.muted_color, ha="left")
-            ax.text(0.05, 0.56, "diagnostics", transform=ax.transAxes, fontsize=8.2, color=theme_cfg.text_color, ha="left")
-            if show_disturbance:
-                ax.text(0.05, 0.42, "disturbance pulse highlighted on bottom panel", transform=ax.transAxes, fontsize=7.6, color=theme_cfg.muted_color, ha="left")
+            ax.text(0.08, 0.80, "Shared trace below", transform=ax.transAxes, fontsize=8.1, color=theme_cfg.muted_color, ha="left")
 
     current_time_line = ax_trace.axvline(0.0, color=theme_cfg.accent_color, linestyle="--", linewidth=0.9)
     if show_disturbance:
@@ -586,8 +581,19 @@ def _render_comparison(
             if np.any(mask):
                 times = disturbance_frame["t"].to_numpy(dtype=float)[mask]
                 ax_trace.axvspan(float(times[0]), float(times[-1]), color=theme_cfg.accent_color, alpha=0.08, linewidth=0.0)
-    ax_trace.legend(legend_handles, legend_labels, loc="upper right", fontsize=7.5, ncol=min(3, max(1, len(legend_labels))), frameon=False)
-    fig.text(0.04, 0.965, title, fontsize=10.4, color=theme_cfg.text_color, ha="left", va="top")
+    fig.text(0.04, 0.982, title, fontsize=10.4, color=theme_cfg.text_color, ha="left", va="top")
+    fig.legend(
+        legend_handles,
+        legend_labels,
+        loc="upper right",
+        bbox_to_anchor=(0.99, 0.956),
+        fontsize=7.2,
+        ncol=min(5, max(1, len(legend_labels))),
+        handlelength=1.6,
+        columnspacing=0.75,
+        handletextpad=0.45,
+        frameon=False,
+    )
 
     stem = output_dir / stem_name
 
@@ -657,17 +663,19 @@ def _render_focus_comparison(
 
     fig = plt.figure(figsize=video_cfg.canvas_size_comparison)
     gs = fig.add_gridspec(3, 3, height_ratios=[1.0, 1.0, 0.95])
-    fig.subplots_adjust(left=0.035, right=0.99, top=0.93, bottom=0.08, wspace=0.05, hspace=0.15)
+    fig.subplots_adjust(left=0.04, right=0.99, top=0.84, bottom=0.08, wspace=0.05, hspace=0.18)
     top_axes = [fig.add_subplot(gs[row, col]) for row in range(2) for col in range(3)]
     ax_trace = fig.add_subplot(gs[2, :])
     style_axis(ax_trace, theme_cfg)
-    add_panel_title(ax_trace, "Angle around event", theme_cfg=theme_cfg)
+    add_panel_title(ax_trace, "Angle around event", theme_cfg=theme_cfg, title_pad=6.5)
     ax_trace.set_xlabel("Time from event [s]")
     ax_trace.set_ylabel("deg")
 
     artists = []
     trace_lines = []
     trace_points = []
+    legend_handles = []
+    legend_labels = []
     max_len = max(len(crop) for _, crop in crops)
     for index, ax in enumerate(top_axes):
         if index < len(crops):
@@ -684,17 +692,31 @@ def _render_focus_comparison(
                 panel_color=theme_cfg.panel_color,
                 background_color=theme_cfg.background_color,
             )
-            controller_badge(ax, _short_label(controller), color, theme_cfg)
+            controller_badge(ax, _short_label(controller), color, theme_cfg, y=0.90, fontsize=7.2, pad=0.16)
             artists.append((artist, crop))
             ax_trace.plot(crop["t_rel"], crop["theta_deg"], color=soften(color, 0.83), linewidth=1.0)
             line, = ax_trace.plot([], [], color=color, linewidth=1.5)
             point, = ax_trace.plot([], [], "o", color=color, markersize=2.8)
             trace_lines.append((line, crop))
             trace_points.append((point, crop))
+            legend_handles.append(Line2D([0], [0], color=color, linewidth=1.6))
+            legend_labels.append(_short_label(controller))
         else:
             ax.set_axis_off()
     event_line = ax_trace.axvline(0.0, color=theme_cfg.accent_color, linestyle="--", linewidth=0.9)
-    fig.text(0.04, 0.965, title, fontsize=10.4, color=theme_cfg.text_color, ha="left", va="top")
+    fig.text(0.04, 0.982, title, fontsize=10.4, color=theme_cfg.text_color, ha="left", va="top")
+    fig.legend(
+        legend_handles,
+        legend_labels,
+        loc="upper right",
+        bbox_to_anchor=(0.99, 0.956),
+        fontsize=7.2,
+        ncol=min(5, max(1, len(legend_labels))),
+        handlelength=1.6,
+        columnspacing=0.75,
+        handletextpad=0.45,
+        frameon=False,
+    )
 
     def update_frame(sample_index: int) -> None:
         for artist, crop in artists:

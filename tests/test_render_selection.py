@@ -134,7 +134,6 @@ def test_eligible_figure_keys_drop_partial_monte_carlo_outputs() -> None:
     assert "full_task_handoff" in eligible
     assert "stress_comparison" in eligible
     assert "metric_summary" in eligible
-    assert "cartpole_schematic" in eligible
     assert "handoff_focus" in eligible
     assert "constraint_usage" in eligible
     assert "energy_phase" in eligible
