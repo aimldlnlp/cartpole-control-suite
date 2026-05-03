@@ -9,6 +9,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import colors as mcolors
+from matplotlib.colors import LinearSegmentedColormap
 
 from cartpole_bench.config import load_theme_config
 from cartpole_bench.types import RenderThemeConfig
@@ -22,14 +23,16 @@ MODE_COLORS = {
 }
 
 
-def apply_theme(theme: str = "paper_white") -> RenderThemeConfig:
+def apply_theme(theme: str = "paper_dense_cmu") -> RenderThemeConfig:
     cfg = load_theme_config(theme)
     plt.rcParams.update(
         {
             "figure.dpi": cfg.dpi,
             "savefig.dpi": cfg.dpi,
             "font.family": cfg.font_family,
+            "font.serif": [cfg.font_family, "CMU Serif", "Computer Modern Roman", "DejaVu Serif"],
             "font.weight": "normal",
+            "mathtext.fontset": "cm",
             "text.color": cfg.text_color,
             "axes.edgecolor": cfg.spine_color,
             "axes.labelcolor": cfg.text_color,
@@ -47,10 +50,10 @@ def apply_theme(theme: str = "paper_white") -> RenderThemeConfig:
             "lines.linewidth": cfg.line_width,
             "legend.frameon": False,
             "axes.titlelocation": "left",
-            "axes.titlesize": 10,
-            "axes.labelsize": 9.5,
-            "xtick.labelsize": 8.5,
-            "ytick.labelsize": 8.5,
+            "axes.titlesize": 9.2,
+            "axes.labelsize": 8.8,
+            "xtick.labelsize": 8.0,
+            "ytick.labelsize": 8.0,
         }
     )
     return cfg
@@ -68,7 +71,7 @@ def soften(color: str, amount: float = 0.82) -> tuple[float, float, float]:
 
 def style_axis(ax, theme_cfg: RenderThemeConfig) -> None:
     ax.set_facecolor(theme_cfg.panel_color)
-    ax.grid(True, alpha=0.55, linewidth=0.55)
+    ax.grid(True, alpha=0.52, linewidth=0.5)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.spines["left"].set_color(theme_cfg.spine_color)
@@ -81,16 +84,16 @@ def style_axis(ax, theme_cfg: RenderThemeConfig) -> None:
 def add_panel_title(ax, title: str, subtitle: str | None = None, theme_cfg: RenderThemeConfig | None = None) -> None:
     if theme_cfg is None:
         raise ValueError("theme_cfg is required")
-    ax.set_title(title, fontsize=9.2, fontweight="normal", color=theme_cfg.text_color, pad=6)
+    ax.set_title(title, fontsize=8.8, fontweight="normal", color=theme_cfg.text_color, pad=4.5)
     if subtitle:
         ax.text(
             0.0,
-            1.01,
+            1.005,
             subtitle,
             transform=ax.transAxes,
             ha="left",
             va="bottom",
-            fontsize=8,
+            fontsize=7.2,
             color=theme_cfg.muted_color,
         )
 
@@ -158,6 +161,17 @@ def controller_badge(ax, text: str, color: str, theme_cfg: RenderThemeConfig, *,
             "facecolor": soften(color, 0.85),
             "edgecolor": color,
         },
+    )
+
+
+def make_density_cmap(theme_cfg: RenderThemeConfig) -> LinearSegmentedColormap:
+    return LinearSegmentedColormap.from_list(
+        "dense_paper",
+        [
+            soften(theme_cfg.accent_color, 0.93),
+            soften(theme_cfg.accent_color, 0.62),
+            theme_cfg.controller_colors.get("Model Predictive Control (MPC)", "#466C46"),
+        ],
     )
 
 

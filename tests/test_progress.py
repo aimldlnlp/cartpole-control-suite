@@ -14,7 +14,7 @@ from cartpole_bench.simulation.batch import run_monte_carlo
 from cartpole_bench.simulation.runner import run_suite, simulate_trajectory
 from cartpole_bench.simulation.tuning import tune_controller
 from cartpole_bench.types import RunDiagnosis, RunMetrics, ScenarioConfig, TrajectoryResult
-from cartpole_bench.utils.progress import LineProgressReporter, ProgressEvent, format_eta
+from cartpole_bench.utils.progress import LineProgressReporter, ProgressEvent, format_eta, format_percent
 
 
 class CollectingReporter:
@@ -69,6 +69,8 @@ def test_format_eta_and_line_progress_reporter(capsys) -> None:
     assert format_eta(192.0) == "3m12s"
     assert format_eta(479.6) == "8m00s"
     assert format_eta(3840.0) == "1h04m"
+    assert format_percent(1, 3) == "33%"
+    assert format_percent(3, 3) == "100%"
 
     reporter = LineProgressReporter()
     reporter.emit(
@@ -83,7 +85,7 @@ def test_format_eta_and_line_progress_reporter(capsys) -> None:
         )
     )
     captured = capsys.readouterr()
-    assert "[suite 1/3] start" in captured.err
+    assert "[suite 33% 1/3] start" in captured.err
     assert "suite=nominal" in captured.err
     assert "controller=lqr" in captured.err
     assert "elapsed=12.4s" in captured.err

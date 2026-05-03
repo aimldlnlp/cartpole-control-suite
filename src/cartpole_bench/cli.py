@@ -36,7 +36,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     render_parser = subparsers.add_parser("render", help="Render figures and animations from saved artifacts")
     render_parser.add_argument("--formats", default="gif", help="Comma-separated animation formats")
-    render_parser.add_argument("--theme", default="paper_white", help="Rendering theme name")
+    render_parser.add_argument("--theme", default="paper_dense_cmu", help="Rendering theme name")
     render_parser.add_argument("--duration-profile", default="extended_gif", help="Animation duration profile")
     render_parser.add_argument("--controllers", default=",".join(CONTROLLER_KEYS), help="Comma-separated controller keys")
     render_parser.add_argument("--estimator", choices=("none", "ekf"), default="none")
@@ -45,7 +45,7 @@ def build_parser() -> argparse.ArgumentParser:
     render_parser.add_argument("--quiet", action="store_true", help="Suppress progress output")
 
     render_figures_parser = subparsers.add_parser("render-figures", help="Render figures from saved artifacts")
-    render_figures_parser.add_argument("--theme", default="paper_white", help="Rendering theme name")
+    render_figures_parser.add_argument("--theme", default="paper_dense_cmu", help="Rendering theme name")
     render_figures_parser.add_argument("--controllers", default=",".join(CONTROLLER_KEYS), help="Comma-separated controller keys")
     render_figures_parser.add_argument("--estimator", choices=("none", "ekf"), default="none")
     render_figures_parser.add_argument("--no-supplements", action="store_true", help="Skip supplemental figures")
@@ -54,7 +54,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     render_animations_parser = subparsers.add_parser("render-animations", help="Render animations from saved artifacts")
     render_animations_parser.add_argument("--formats", default="gif", help="Comma-separated animation formats")
-    render_animations_parser.add_argument("--theme", default="paper_white", help="Rendering theme name")
+    render_animations_parser.add_argument("--theme", default="paper_dense_cmu", help="Rendering theme name")
     render_animations_parser.add_argument("--duration-profile", default="extended_gif", help="Animation duration profile")
     render_animations_parser.add_argument("--controllers", default=",".join(CONTROLLER_KEYS), help="Comma-separated controller keys")
     render_animations_parser.add_argument("--estimator", choices=("none", "ekf"), default="none")

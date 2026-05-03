@@ -9,8 +9,9 @@ from cartpole_bench.plots.figures import FIGURE_FILENAMES, SUPPLEMENTAL_FIGURE_F
 def test_render_configs_load_expected_defaults() -> None:
     theme = load_theme_config()
     video = load_video_config()
-    assert theme.name == "paper_white"
-    assert theme.background_color == "#FFFFFF"
+    assert theme.name == "paper_dense_cmu"
+    assert theme.font_family == "CMU Serif"
+    assert theme.background_color == "#FBFAF6"
     assert "LQR" in theme.controller_colors
     assert video.profile("extended")["playback_seconds"] > 10.0
     assert video.profile("extended_gif")["playback_seconds"] == 12.8
@@ -33,7 +34,7 @@ def test_cli_render_defaults_use_gif_first_muted_theme() -> None:
     parser = build_parser()
     args = parser.parse_args(["render"])
     assert args.formats == "gif"
-    assert args.theme == "paper_white"
+    assert args.theme == "paper_dense_cmu"
     assert args.duration_profile == "extended_gif"
     assert args.estimator == "none"
     assert "ilqr" in args.controllers

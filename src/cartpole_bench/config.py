@@ -83,7 +83,7 @@ def load_monte_carlo_config(config_root: Path = CONFIG_ROOT) -> dict[str, Any]:
     return load_json(config_root / "experiments" / "monte_carlo.json")
 
 
-def load_theme_config(theme: str = "paper_white", config_root: Path = CONFIG_ROOT) -> RenderThemeConfig:
+def load_theme_config(theme: str = "paper_dense_cmu", config_root: Path = CONFIG_ROOT) -> RenderThemeConfig:
     payload = load_json(config_root / "rendering" / "theme.json")
     theme_payload = payload["themes"][theme]
     return RenderThemeConfig(name=theme, **theme_payload)

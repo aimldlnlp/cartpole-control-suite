@@ -293,7 +293,7 @@ def _save_animation_bundle(fig, update_frame, total_samples: int, stem: Path, fo
 def render_animations(
     base_dir: Path,
     formats: tuple[str, ...] = ("gif",),
-    theme: str = "paper_white",
+    theme: str = "paper_dense_cmu",
     duration_profile: str = "extended_gif",
     include_supplements: bool = True,
     controllers: tuple[str, ...] = tuple(CONTROLLER_LABELS),

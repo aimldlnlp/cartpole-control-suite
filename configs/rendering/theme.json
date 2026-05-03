@@ -1,5 +1,25 @@
 {
   "themes": {
+    "paper_dense_cmu": {
+      "font_family": "CMU Serif",
+      "dpi": 320,
+      "line_width": 1.45,
+      "axes_line_width": 0.8,
+      "background_color": "#FBFAF6",
+      "panel_color": "#FFFEFB",
+      "text_color": "#17181C",
+      "grid_color": "#E1DDD4",
+      "spine_color": "#B7B0A4",
+      "accent_color": "#B68A2C",
+      "muted_color": "#676C74",
+      "controller_colors": {
+        "LQR": "#274060",
+        "Feedback Linearization (PFL)": "#2F6F73",
+        "Sliding Mode Control (SMC)": "#A8573B",
+        "Iterative LQR (iLQR)": "#6F4C97",
+        "Model Predictive Control (MPC)": "#3F6B42"
+      }
+    },
     "paper_white": {
       "font_family": "DejaVu Serif",
       "dpi": 300,

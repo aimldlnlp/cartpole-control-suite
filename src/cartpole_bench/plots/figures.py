@@ -16,6 +16,7 @@ from cartpole_bench.plots.style import (
     apply_theme,
     controller_badge,
     controller_color,
+    make_density_cmap,
     plot_percentile_band,
     save_figure,
     soften,
@@ -58,6 +59,25 @@ FAILURE_ORDER = [
     "invalid_state_or_control",
     "unknown_failure",
 ]
+FAILURE_SHORT_LABELS = {
+    "success": "ok",
+    "did_not_meet_settling_window": "settle",
+    "left_stable_region": "left",
+    "track_limit_exceeded": "track",
+    "no_balance_handoff": "handoff",
+    "capture_assist_no_handoff": "capture",
+    "invalid_state_or_control": "invalid",
+    "unknown_failure": "unknown",
+}
+SCENARIO_SHORT_LABELS = {
+    "local_small_angle": "local",
+    "full_task_hanging": "full task",
+    "measurement_noise": "noise",
+    "impulse_disturbance": "impulse",
+    "friction_and_damping": "friction",
+    "large_angle_recovery": "large-angle",
+    "parameter_mismatch": "mismatch",
+}
 
 
 def _short_label(controller: str) -> str:
@@ -72,6 +92,10 @@ def _short_label(controller: str) -> str:
 
 def _selected_labels(controllers: tuple[str, ...]) -> list[str]:
     return [CONTROLLER_LABELS[key] for key in controllers if key in CONTROLLER_LABELS]
+
+
+def _scenario_label(name: str) -> str:
+    return SCENARIO_SHORT_LABELS.get(name, name.replace("_", " "))
 
 
 def _required_labels(controllers: tuple[str, ...]) -> list[str]:
@@ -194,6 +218,103 @@ def _representative_run(runs: list[dict], scenario: str, controller: str) -> dic
 def _summary(base_dir: Path) -> pd.DataFrame:
     path = base_dir / "tables" / "metric_summary.csv"
     return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+
+def _normalize_metric_values(values: np.ndarray, *, higher_is_better: bool) -> np.ndarray:
+    normalized = np.full(values.shape, np.nan, dtype=float)
+    finite = np.isfinite(values)
+    if not np.any(finite):
+        return normalized
+    low = float(np.nanmin(values))
+    high = float(np.nanmax(values))
+    if abs(high - low) < 1e-9:
+        normalized[finite] = 0.72
+        return normalized
+    scaled = (values - low) / (high - low)
+    normalized[finite] = scaled[finite] if higher_is_better else 1.0 - scaled[finite]
+    return normalized
+
+
+def _draw_metric_heatmap(
+    ax,
+    normalized: pd.DataFrame,
+    display: pd.DataFrame,
+    theme_cfg,
+    *,
+    title: str,
+    subtitle: str | None = None,
+    x_rotation: float = 0.0,
+    value_fontsize: float = 7.1,
+) -> None:
+    style_axis(ax, theme_cfg)
+    add_panel_title(ax, title, subtitle=subtitle, theme_cfg=theme_cfg)
+    if normalized.empty:
+        ax.text(0.5, 0.5, "no data", ha="center", va="center", fontsize=8.0, color=theme_cfg.muted_color)
+        ax.set_xticks([])
+        ax.set_yticks([])
+        return
+
+    cmap = make_density_cmap(theme_cfg)
+    matrix = np.nan_to_num(normalized.to_numpy(dtype=float), nan=0.0)
+    ax.imshow(matrix, aspect="auto", cmap=cmap, vmin=0.0, vmax=1.0)
+    ax.set_xticks(np.arange(len(normalized.columns)))
+    ax.set_xticklabels(list(normalized.columns), rotation=x_rotation, ha="right" if x_rotation else "center", fontsize=7.7)
+    ax.set_yticks(np.arange(len(normalized.index)))
+    ax.set_yticklabels(list(normalized.index), fontsize=7.9)
+    ax.set_xticks(np.arange(-0.5, len(normalized.columns), 1), minor=True)
+    ax.set_yticks(np.arange(-0.5, len(normalized.index), 1), minor=True)
+    ax.grid(False)
+    ax.grid(which="minor", color=soften(theme_cfg.spine_color, 0.45), linewidth=0.7)
+    ax.tick_params(which="minor", bottom=False, left=False)
+
+    for row_index, row_label in enumerate(normalized.index):
+        for col_index, col_label in enumerate(normalized.columns):
+            value = float(matrix[row_index, col_index])
+            text_color = "#FFFFFF" if value >= 0.58 else theme_cfg.text_color
+            ax.text(
+                col_index,
+                row_index,
+                str(display.loc[row_label, col_label]),
+                ha="center",
+                va="center",
+                fontsize=value_fontsize,
+                color=text_color,
+            )
+
+
+def _build_profile_tables(
+    frame: pd.DataFrame,
+    metrics: list[tuple[str, str, bool, str]],
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    value_rows: dict[str, list[float]] = {}
+    display_rows: dict[str, list[str]] = {}
+    for _, row in frame.iterrows():
+        row_key = str(row["label"])
+        numeric_values: list[float] = []
+        display_values: list[str] = []
+        for column, _, _, fmt in metrics:
+            value = row.get(column)
+            numeric_values.append(float(value) if value is not None and pd.notna(value) else np.nan)
+            if value is None or pd.isna(value):
+                display_values.append("NA")
+            elif fmt == "pct":
+                display_values.append(f"{100.0 * float(value):.0f}%")
+            elif fmt == "float2":
+                display_values.append(f"{float(value):.2f}")
+            elif fmt == "float1":
+                display_values.append(f"{float(value):.1f}")
+            else:
+                display_values.append(str(value))
+        value_rows[row_key] = numeric_values
+        display_rows[row_key] = display_values
+
+    columns = [label for _, label, _, _ in metrics]
+    value_frame = pd.DataFrame.from_dict(value_rows, orient="index", columns=columns)
+    normalized = pd.DataFrame(index=value_frame.index, columns=value_frame.columns, dtype=float)
+    for column, label, higher_is_better, _ in metrics:
+        normalized[label] = _normalize_metric_values(value_frame[label].to_numpy(dtype=float), higher_is_better=higher_is_better)
+    display = pd.DataFrame.from_dict(display_rows, orient="index", columns=columns)
+    return normalized, display
 
 
 def _monte_summary(base_dir: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -369,7 +490,7 @@ def _cleanup_stale_figure_outputs(base_dir: Path, eligible_keys: list[str]) -> s
 
 def generate_figures(
     base_dir: Path,
-    theme: str = "paper_white",
+    theme: str = "paper_dense_cmu",
     include_supplements: bool = True,
     controllers: tuple[str, ...] = tuple(CONTROLLER_LABELS),
     estimator_name: str = "none",
@@ -461,12 +582,18 @@ def _figure_nominal_local_response(runs: list[dict], figures_dir: Path, theme_cf
     scenario_runs = [run for run in runs if run["metadata"]["scenario_name"] == "local_small_angle"]
     controllers = [controller for controller in CONTROLLER_ORDER if any(run["metadata"]["controller_name"] == controller for run in scenario_runs)]
 
-    fig, axes = plt.subplots(2, 2, figsize=(11.8, 6.9))
-    fig.subplots_adjust(left=0.08, right=0.985, top=0.90, bottom=0.11, wspace=0.15, hspace=0.22)
-    ax_angle, ax_cart, ax_force, ax_phase = axes.ravel()
-    for ax in axes.ravel():
+    fig = plt.figure(figsize=(12.2, 6.6))
+    gs = fig.add_gridspec(2, 3, width_ratios=[1.15, 1.15, 0.92], height_ratios=[1.0, 1.0])
+    fig.subplots_adjust(left=0.07, right=0.985, top=0.91, bottom=0.11, wspace=0.18, hspace=0.22)
+    ax_angle = fig.add_subplot(gs[0, 0])
+    ax_cart = fig.add_subplot(gs[0, 1], sharex=ax_angle)
+    ax_force = fig.add_subplot(gs[1, 0], sharex=ax_angle)
+    ax_phase = fig.add_subplot(gs[1, 1])
+    ax_profile = fig.add_subplot(gs[:, 2])
+    for ax in (ax_angle, ax_cart, ax_force, ax_phase, ax_profile):
         style_axis(ax, theme_cfg)
 
+    profile_rows = []
     for controller in controllers:
         controller_runs = [run for run in scenario_runs if run["metadata"]["controller_name"] == controller]
         color = controller_color(theme_cfg, controller)
@@ -485,10 +612,30 @@ def _figure_nominal_local_response(runs: list[dict], figures_dir: Path, theme_cf
         plot_percentile_band(ax_cart, time, cart_samples, color)
         plot_percentile_band(ax_force, time, force_samples, color)
         ax_phase.plot(np.nanmedian(theta_samples, axis=0), np.nanmedian(rate_samples, axis=0), color=color, linewidth=1.9)
+        ax_phase.scatter(
+            np.nanmedian(theta_samples[:, -1]),
+            np.nanmedian(rate_samples[:, -1]),
+            color=color,
+            s=16,
+            zorder=4,
+        )
+        settling_values = pd.to_numeric(
+            pd.Series([run["metadata"]["metrics"]["settling_time"] for run in controller_runs]),
+            errors="coerce",
+        )
+        profile_rows.append(
+            {
+                "label": _short_label(controller),
+                "settling_time": float(np.nanmedian(settling_values)),
+                "max_abs_x": float(np.nanmedian([run["metadata"]["diagnosis"]["max_abs_x"] for run in controller_runs])),
+                "control_effort": float(np.nanmedian([run["metadata"]["metrics"]["control_effort"] for run in controller_runs])),
+                "balance_fraction": float(np.nanmedian([run["metadata"]["diagnosis"]["balance_fraction"] for run in controller_runs])),
+            }
+        )
 
-    add_panel_title(ax_angle, "Angle", subtitle="all seeds + median/IQR", theme_cfg=theme_cfg)
-    add_panel_title(ax_cart, "Cart", subtitle="all seeds + median/IQR", theme_cfg=theme_cfg)
-    add_panel_title(ax_force, "Force", subtitle="all seeds + median/IQR", theme_cfg=theme_cfg)
+    add_panel_title(ax_angle, "Angle", subtitle="median plus seed cloud", theme_cfg=theme_cfg)
+    add_panel_title(ax_cart, "Cart", subtitle="median plus seed cloud", theme_cfg=theme_cfg)
+    add_panel_title(ax_force, "Force", subtitle="median plus seed cloud", theme_cfg=theme_cfg)
     add_panel_title(ax_phase, "Phase", subtitle="median trajectory", theme_cfg=theme_cfg)
     ax_angle.set_ylabel("Angle [deg]")
     ax_cart.set_ylabel("Position [m]")
@@ -498,8 +645,27 @@ def _figure_nominal_local_response(runs: list[dict], figures_dir: Path, theme_cf
     ax_phase.set_ylabel("Angular rate [rad/s]")
     ax_angle.tick_params(labelbottom=False)
     ax_cart.tick_params(labelbottom=False)
+    profile_frame = pd.DataFrame(profile_rows)
+    normalized, display = _build_profile_tables(
+        profile_frame,
+        [
+            ("settling_time", "Settle", False, "float1"),
+            ("max_abs_x", "|x|", False, "float2"),
+            ("control_effort", "Effort", False, "float1"),
+            ("balance_fraction", "Bal", True, "pct"),
+        ],
+    )
+    _draw_metric_heatmap(
+        ax_profile,
+        normalized,
+        display,
+        theme_cfg,
+        title="Profile",
+        subtitle="seed medians",
+        value_fontsize=7.0,
+    )
     _shared_legend(fig, theme_cfg, controllers)
-    fig.suptitle("Nominal Local Response", x=0.08, y=0.975, ha="left", fontsize=12.2, color=theme_cfg.text_color)
+    fig.suptitle("Nominal Local Response", x=0.07, y=0.975, ha="left", fontsize=11.5, color=theme_cfg.text_color)
     path = figures_dir / FIGURE_FILENAMES["nominal_local_response"]
     save_figure(fig, path, theme_cfg)
     return path
@@ -509,21 +675,24 @@ def _figure_full_task_handoff(runs: list[dict], figures_dir: Path, theme_cfg) ->
     scenario_runs = [run for run in runs if run["metadata"]["scenario_name"] == "full_task_hanging"]
     controllers = [controller for controller in CONTROLLER_ORDER if any(run["metadata"]["controller_name"] == controller for run in scenario_runs)]
 
-    fig = plt.figure(figsize=(11.8, 7.2))
-    gs = fig.add_gridspec(4, 1, height_ratios=[2.1, 1.3, 1.3, 0.7])
+    fig = plt.figure(figsize=(12.4, 7.0))
+    gs = fig.add_gridspec(4, 2, width_ratios=[4.2, 1.45], height_ratios=[2.0, 1.25, 1.25, 0.75])
     ax_angle = fig.add_subplot(gs[0, 0])
     ax_cart = fig.add_subplot(gs[1, 0], sharex=ax_angle)
     ax_force = fig.add_subplot(gs[2, 0], sharex=ax_angle)
     ax_mode = fig.add_subplot(gs[3, 0], sharex=ax_angle)
-    fig.subplots_adjust(left=0.085, right=0.985, top=0.90, bottom=0.12, hspace=0.22)
+    ax_profile = fig.add_subplot(gs[:, 1])
+    fig.subplots_adjust(left=0.075, right=0.985, top=0.90, bottom=0.12, hspace=0.22, wspace=0.18)
     for ax in (ax_angle, ax_cart, ax_force):
         style_axis(ax, theme_cfg)
         add_event_band(ax, -0.15, 0.15, theme_cfg, alpha=0.07)
         ax.axvline(0.0, color=theme_cfg.accent_color, linestyle="--", linewidth=0.9, alpha=0.75)
+    style_axis(ax_profile, theme_cfg)
 
     mode_rows = []
     aligned_controllers = []
     grid = None
+    profile_rows = []
     for controller in controllers:
         controller_runs = [run for run in scenario_runs if run["metadata"]["controller_name"] == controller]
         color = controller_color(theme_cfg, controller)
@@ -543,10 +712,27 @@ def _figure_full_task_handoff(runs: list[dict], figures_dir: Path, theme_cfg) ->
         )
         mode_rows.append(dominant)
         aligned_controllers.append(controller)
+        entry_values = pd.to_numeric(
+            pd.Series([run["metadata"]["diagnosis"]["first_balance_time"] for run in controller_runs]),
+            errors="coerce",
+        )
+        settling_values = pd.to_numeric(
+            pd.Series([run["metadata"]["metrics"]["settling_time"] for run in controller_runs]),
+            errors="coerce",
+        )
+        profile_rows.append(
+            {
+                "label": _short_label(controller),
+                "first_balance_time": float(np.nanmedian(entry_values)),
+                "settling_time": float(np.nanmedian(settling_values)),
+                "balance_fraction": float(np.nanmedian([run["metadata"]["diagnosis"]["balance_fraction"] for run in controller_runs])),
+                "max_abs_force": float(np.nanmedian([run["metadata"]["metrics"]["max_abs_force"] for run in controller_runs])),
+            }
+        )
 
-    add_panel_title(ax_angle, "Angle", subtitle="aligned to first balance entry", theme_cfg=theme_cfg)
-    add_panel_title(ax_cart, "Cart", subtitle="aligned to first balance entry", theme_cfg=theme_cfg)
-    add_panel_title(ax_force, "Force", subtitle="aligned to first balance entry", theme_cfg=theme_cfg)
+    add_panel_title(ax_angle, "Angle", subtitle="aligned to balance entry", theme_cfg=theme_cfg)
+    add_panel_title(ax_cart, "Cart", subtitle="aligned to balance entry", theme_cfg=theme_cfg)
+    add_panel_title(ax_force, "Force", subtitle="aligned to balance entry", theme_cfg=theme_cfg)
     ax_angle.set_ylabel("Angle [deg]")
     ax_cart.set_ylabel("Cart [m]")
     ax_force.set_ylabel("Force [N]")
@@ -574,8 +760,27 @@ def _figure_full_task_handoff(runs: list[dict], figures_dir: Path, theme_cfg) ->
     ax_mode.tick_params(axis="x", labelsize=8.5)
     for spine in ax_mode.spines.values():
         spine.set_visible(False)
+    profile_frame = pd.DataFrame(profile_rows)
+    normalized, display = _build_profile_tables(
+        profile_frame,
+        [
+            ("first_balance_time", "Entry", False, "float1"),
+            ("settling_time", "Settle", False, "float1"),
+            ("balance_fraction", "Bal", True, "pct"),
+            ("max_abs_force", "|u|", False, "float1"),
+        ],
+    )
+    _draw_metric_heatmap(
+        ax_profile,
+        normalized,
+        display,
+        theme_cfg,
+        title="Profile",
+        subtitle="full task medians",
+        value_fontsize=6.9,
+    )
     _shared_legend(fig, theme_cfg, controllers)
-    fig.suptitle("Full-Task Handoff", x=0.085, y=0.975, ha="left", fontsize=12.2, color=theme_cfg.text_color)
+    fig.suptitle("Full-Task Handoff", x=0.075, y=0.975, ha="left", fontsize=11.5, color=theme_cfg.text_color)
     path = figures_dir / FIGURE_FILENAMES["full_task_handoff"]
     save_figure(fig, path, theme_cfg)
     return path
@@ -592,12 +797,14 @@ def _figure_stress_comparison(runs: list[dict], figures_dir: Path, theme_cfg, ba
     scenarios = list(dict.fromkeys(stress.get("scenario", pd.Series(dtype=str)).tolist()))
 
     success = np.zeros((len(controllers), len(scenarios)), dtype=float)
+    settling = np.full((len(controllers), len(scenarios)), np.nan, dtype=float)
     failure_index = np.zeros((len(controllers), len(scenarios)), dtype=float)
     for row_index, controller in enumerate(controllers):
         for col_index, scenario in enumerate(scenarios):
             subset = stress[(stress["controller"] == controller) & (stress["scenario"] == scenario)]
             if not subset.empty:
                 success[row_index, col_index] = float(subset["success_rate"].iloc[0])
+                settling[row_index, col_index] = float(subset["settling_time_median"].iloc[0]) if "settling_time_median" in subset else np.nan
             scenario_runs = [
                 run
                 for run in runs
@@ -611,46 +818,69 @@ def _figure_stress_comparison(runs: list[dict], figures_dir: Path, theme_cfg, ba
                 dominant = max(set(reasons), key=reasons.count)
                 failure_index[row_index, col_index] = FAILURE_ORDER.index(dominant) if dominant in FAILURE_ORDER else FAILURE_ORDER.index("unknown_failure")
 
-    fig, axes = plt.subplots(1, 2, figsize=(11.6, 4.3))
-    fig.subplots_adjust(left=0.08, right=0.985, top=0.84, bottom=0.20, wspace=0.18)
-    for ax in axes:
-        style_axis(ax, theme_cfg)
+    fig, axes = plt.subplots(1, 3, figsize=(13.0, 4.8))
+    fig.subplots_adjust(left=0.065, right=0.99, top=0.85, bottom=0.20, wspace=0.14)
     if controllers and scenarios:
-        cmap_success = LinearSegmentedColormap.from_list("success", ["#F7F7F7", soften(theme_cfg.accent_color, 0.55), "#6D986B"])
-        axes[0].imshow(success, aspect="auto", cmap=cmap_success, vmin=0.0, vmax=1.0)
-        axes[0].set_xticks(np.arange(len(scenarios)))
-        axes[0].set_xticklabels([scenario.replace("_", " ").title() for scenario in scenarios], rotation=18, ha="right", fontsize=8.2)
-        axes[0].set_yticks(np.arange(len(controllers)))
-        axes[0].set_yticklabels([_short_label(controller) for controller in controllers], fontsize=8.6)
-        add_panel_title(axes[0], "Success Rate", theme_cfg=theme_cfg)
-        for row_index in range(len(controllers)):
-            for col_index in range(len(scenarios)):
-                axes[0].text(col_index, row_index, f"{success[row_index, col_index]:.2f}", ha="center", va="center", fontsize=8.0)
-
-        cmap_failure = ListedColormap(
-            [
-                "#FFFFFF",
-                soften(theme_cfg.accent_color, 0.65),
-                "#C3B27F",
-                "#D89A71",
-                "#AF7D62",
-                "#C8B56C",
-                "#B86B6B",
-                "#9A9A9A",
-            ]
+        row_labels = [_short_label(controller) for controller in controllers]
+        col_labels = [_scenario_label(scenario) for scenario in scenarios]
+        success_norm = pd.DataFrame(success, index=row_labels, columns=col_labels)
+        success_display = success_norm.apply(lambda column: column.map(lambda value: f"{value:.2f}"))
+        _draw_metric_heatmap(
+            axes[0],
+            success_norm,
+            success_display,
+            theme_cfg,
+            title="Success",
+            subtitle="stress seeds",
+            x_rotation=18,
+            value_fontsize=7.0,
         )
-        axes[1].imshow(failure_index, aspect="auto", cmap=cmap_failure, vmin=0, vmax=len(FAILURE_ORDER) - 1)
-        axes[1].set_xticks(np.arange(len(scenarios)))
-        axes[1].set_xticklabels([scenario.replace("_", " ").title() for scenario in scenarios], rotation=18, ha="right", fontsize=8.2)
-        axes[1].set_yticks(np.arange(len(controllers)))
-        axes[1].set_yticklabels([_short_label(controller) for controller in controllers], fontsize=8.6)
-        add_panel_title(axes[1], "Dominant Failure", theme_cfg=theme_cfg)
-        for row_index in range(len(controllers)):
-            for col_index in range(len(scenarios)):
-                label = FAILURE_ORDER[int(failure_index[row_index, col_index])]
-                label = label.replace("_", " ")
-                axes[1].text(col_index, row_index, label if len(label) < 12 else label[:11], ha="center", va="center", fontsize=6.5)
-    fig.suptitle("Stress Comparison", x=0.08, y=0.965, ha="left", fontsize=12.2, color=theme_cfg.text_color)
+
+        settling_frame = pd.DataFrame(settling, index=row_labels, columns=col_labels)
+        settling_norm = pd.DataFrame(index=row_labels, columns=col_labels, dtype=float)
+        for scenario_label in col_labels:
+            settling_norm[scenario_label] = _normalize_metric_values(
+                settling_frame[scenario_label].to_numpy(dtype=float),
+                higher_is_better=False,
+            )
+        settling_display = settling_frame.apply(
+            lambda column: column.map(lambda value: "NA" if pd.isna(value) else f"{float(value):.1f}")
+        )
+        _draw_metric_heatmap(
+            axes[1],
+            settling_norm,
+            settling_display,
+            theme_cfg,
+            title="Settle",
+            subtitle="median seconds",
+            x_rotation=18,
+            value_fontsize=6.9,
+        )
+
+        failure_frame = pd.DataFrame(
+            [
+                [FAILURE_SHORT_LABELS[FAILURE_ORDER[int(value)]] for value in row]
+                for row in failure_index
+            ],
+            index=row_labels,
+            columns=col_labels,
+        )
+        failure_norm = pd.DataFrame(
+            np.where(np.asarray(failure_frame == "ok"), 1.0, 0.28),
+            index=row_labels,
+            columns=col_labels,
+        )
+        _draw_metric_heatmap(
+            axes[2],
+            failure_norm,
+            failure_frame,
+            theme_cfg,
+            title="Failure",
+            subtitle="dominant label",
+            x_rotation=18,
+            value_fontsize=6.8,
+        )
+    fig.suptitle("Stress Comparison", x=0.065, y=0.965, ha="left", fontsize=11.5, color=theme_cfg.text_color)
     path = figures_dir / FIGURE_FILENAMES["stress_comparison"]
     save_figure(fig, path, theme_cfg)
     return path
@@ -661,33 +891,44 @@ def _figure_metric_summary(runs: list[dict], figures_dir: Path, theme_cfg, base_
     estimator = runs[0]["metadata"].get("estimator_name", "none")
     summary = summary[summary.get("estimator", "none") == estimator] if "estimator" in summary else summary
     controller_order = [controller for controller in CONTROLLER_ORDER if controller in set(summary.get("controller", []))]
+    profile_rows = []
+    for controller in controller_order:
+        subset = summary[summary["controller"] == controller]
+        profile_rows.append(
+            {
+                "label": _short_label(controller),
+                "success_rate": float(subset["success_rate"].mean()) if "success_rate" in subset else np.nan,
+                "settling_time_median": float(subset["settling_time_median"].median()) if "settling_time_median" in subset else np.nan,
+                "steady_state_error_deg_median": float(subset["steady_state_error_deg_median"].median()) if "steady_state_error_deg_median" in subset else np.nan,
+                "control_effort_median": float(subset["control_effort_median"].median()) if "control_effort_median" in subset else np.nan,
+                "handoff_rate": float(subset["handoff_rate"].mean()) if "handoff_rate" in subset else np.nan,
+                "balance_fraction_median": float(subset["balance_fraction_median"].median()) if "balance_fraction_median" in subset else np.nan,
+            }
+        )
 
-    metrics = [
-        ("success_rate", "Success"),
-        ("settling_time_median", "Settling"),
-        ("steady_state_error_deg_median", "SSE"),
-        ("control_effort_median", "Effort"),
-    ]
-
-    fig, axes = plt.subplots(2, 2, figsize=(11.7, 6.6))
-    fig.subplots_adjust(left=0.08, right=0.985, top=0.90, bottom=0.11, wspace=0.14, hspace=0.18)
-    for ax, (column, title) in zip(axes.ravel(), metrics, strict=True):
-        style_axis(ax, theme_cfg)
-        add_panel_title(ax, title, theme_cfg=theme_cfg)
-        rows = []
-        for controller in controller_order:
-            values = summary[summary["controller"] == controller][column].dropna().to_numpy(dtype=float)
-            if values.size:
-                rows.append((controller, float(np.min(values)), float(np.median(values)), float(np.max(values))))
-            else:
-                rows.append((controller, np.nan, np.nan, np.nan))
-        for index, (controller, low, mid, high) in enumerate(rows):
-            color = controller_color(theme_cfg, controller)
-            ax.vlines(index, low, high, color=color, linewidth=1.7, alpha=0.45)
-            ax.scatter(index, mid, color=color, s=42, zorder=3)
-        ax.set_xticks(np.arange(len(controller_order)))
-        ax.set_xticklabels([_short_label(controller) for controller in controller_order], fontsize=8.8)
-    fig.suptitle("Metric Summary", x=0.08, y=0.975, ha="left", fontsize=12.2, color=theme_cfg.text_color)
+    fig, ax = plt.subplots(figsize=(11.6, 4.5))
+    fig.subplots_adjust(left=0.09, right=0.985, top=0.84, bottom=0.18)
+    normalized, display = _build_profile_tables(
+        pd.DataFrame(profile_rows),
+        [
+            ("success_rate", "Succ", True, "pct"),
+            ("settling_time_median", "Settle", False, "float1"),
+            ("steady_state_error_deg_median", "SSE", False, "float2"),
+            ("control_effort_median", "Effort", False, "float1"),
+            ("handoff_rate", "Hand", True, "pct"),
+            ("balance_fraction_median", "Bal", True, "pct"),
+        ],
+    )
+    _draw_metric_heatmap(
+        ax,
+        normalized,
+        display,
+        theme_cfg,
+        title="Controller Profile",
+        subtitle="aggregated across nominal and stress tables",
+        value_fontsize=7.0,
+    )
+    fig.suptitle("Metric Summary", x=0.09, y=0.965, ha="left", fontsize=11.5, color=theme_cfg.text_color)
     path = figures_dir / FIGURE_FILENAMES["metric_summary"]
     save_figure(fig, path, theme_cfg)
     return path
@@ -753,7 +994,9 @@ def _figure_monte_carlo_overview(
                     linewidth=0.8,
                     density=True,
                 )
-        axes[1].legend(loc="lower right", fontsize=7.5, frameon=False)
+        handles, labels_for_legend = axes[1].get_legend_handles_labels()
+        if handles:
+            axes[1].legend(handles, labels_for_legend, loc="lower right", fontsize=7.5, frameon=False)
         axes[1].set_xlabel("Time [s]")
         axes[1].set_ylabel("CDF")
         axes[2].set_xlabel("SSE [deg]")

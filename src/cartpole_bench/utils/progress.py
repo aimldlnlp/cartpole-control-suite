@@ -43,6 +43,13 @@ def format_eta(seconds: float | None) -> str:
     return f"{hours}h{minutes:02d}m"
 
 
+def format_percent(current: int | None, total: int | None) -> str | None:
+    if current is None or total is None or total <= 0:
+        return None
+    percent = max(0.0, min(100.0, 100.0 * float(current) / float(total)))
+    return f"{int(round(percent))}%"
+
+
 class PhaseTimer:
     def __init__(self) -> None:
         self.started_at = perf_counter()
@@ -74,5 +81,8 @@ class LineProgressReporter(ProgressReporter):
 
     def _label(self, event: ProgressEvent) -> str:
         if event.current is not None and event.total is not None:
+            percent = format_percent(event.current, event.total)
+            if percent is not None:
+                return f"[{event.domain} {percent} {event.current}/{event.total}] {event.stage}"
             return f"[{event.domain} {event.current}/{event.total}] {event.stage}"
         return f"[{event.domain}:{event.stage}]"
